@@ -6,7 +6,11 @@
 
 **Thesis:** “An agent's own account of what it did is a claim, not evidence.”
 
-**Copy rules used here:** no customer logos, ARR, testimonials, press coverage, benchmark numbers, certifications, or guarantee language. Signatures prove issuance and integrity — not that a decision was correct, and not that a record was never fabricated by the key holder. Every number below comes from the verified product facts.
+**Copy rules used here:** no customer logos, ARR, testimonials, press coverage, benchmark numbers, certifications, or guarantee language. Signatures prove issuance and integrity — not that a decision was correct, and not that a record was never fabricated by the key holder. All pricing and product claims below come from the verified facts; the test ARR visible in the screenshots is called out as test data.
+
+**Formatting:** backticks mark exact strings. Strip them when pasting into HN, Product Hunt, or X, which do not render Markdown.
+
+**If payments go live before publication:** remove the sandbox sentences from the Show HN body, the Product Hunt first comment, the pricing gallery caption, and the first LinkedIn post, then replace them with the real checkout status. Also remove the “no customers / no ARR” lines from §2 and §3 if either exists by publication. Do not leave stale status language.
 
 ---
 
@@ -19,7 +23,7 @@
 ### Three proof points
 
 1. **The decision happens before the action.** The policy gate evaluates the tool call before side effects. There is no default-allow path: only an explicit allow rule with all preconditions met passes, and an evaluation error is a HALT, not a pass.
-2. **The record is dual-signed and append-only.** Each decision is signed with two Ed25519 keys — platform and tenant — over the same canonical body, then appended to a SHA-256 hash chain. A seal commits to the chain tail. Editing a field, deleting a record, or reordering the chain is detectable.
+2. **The record is dual-signed and append-only.** Each decision is signed with two Ed25519 keys — platform and tenant (the customer workspace) — over the same canonical body, then appended to a SHA-256 hash chain. A seal commits to the chain tail. Editing a field, deleting a record, or reordering the chain breaks verification; a full rewrite by the key holder is what the out-of-band seal is for.
 3. **Verification does not require us.** A public key and the chain file are enough for a normal check; the published seal is the extra check for a full-chain rewrite. No account, no network, no vendor dashboard. The auditor recomputes; the artifact either verifies or it does not.
 
 ### Who this is for
@@ -67,9 +71,9 @@ Dual signing is an integrity control, not separation of trust by itself. In the 
 
 I built AgentProof.cloud around a simple observation: an agent's own account of what it did is a claim, not evidence. AgentProof sits in front of the tool call: a deny-by-default policy gate decides before the action runs, and the decision is signed before any side effect.
 
-Each decision gets two Ed25519 signatures over the same canonical body — platform key and tenant key — then goes into a SHA-256 hash chain. A seal commits to the chain tail. Verification takes a public key and the chain file; no account, no network, no vendor. Edit a field, delete a record, or reorder the chain, and the chain no longer verifies.
+Each decision gets two Ed25519 signatures over the same canonical body — platform key and tenant key — then goes into a SHA-256 hash chain. A seal commits to the chain tail. Verification takes a public key and the chain file; no account, no network, no vendor. Edit a field, delete a record, or reorder the chain without the keys, and the chain no longer verifies.
 
-There is a free scanner at `[PUBLIC_URL]/#/scanner`. Paste an `mcp.json` or Python tool code and it runs static rules — MCP config checks and Python code checks, not an LLM and not a mock — to produce an A–F grade, per-finding evidence, and a deny-by-default `policy.yaml`. It does not execute the code; don't paste live secrets.
+There is a free scanner on the home page at `[PUBLIC_URL]` (the "免费扫描" section). Paste an `mcp.json` or Python tool code and it runs static rules — MCP config checks and Python code checks, not an LLM and not a mock — to produce an A–F grade, per-finding evidence, and a deny-by-default `policy.yaml`. It does not execute the code; don't paste live secrets.
 
 Limits, because they matter: signatures prove issuance and integrity, not that a decision was correct, and not that whoever holds the keys never fabricated a record. Publish the seal out of band for that. Exports to Vanta, Drata, Datadog, and Lloyd's AIUC-1 are mapping drafts, not certified integrations. The hosted checkout is a sandbox: it creates a tenant and API key, but takes no money.
 
@@ -79,7 +83,7 @@ The core is MIT and self-hostable. I'm the only maintainer; there are no custome
 
 **1. “A signature only proves you signed it. It can't prove the decision was right — or that you didn't just sign a false record.”**
 
-Correct, and the copy says so. The signature proves the record was issued by those keys and has not changed; it does not prove the decision was correct. The decision comes from a deterministic policy gate before the call, not from the agent's narrative. If the policy is wrong, you get a verifiable record of a wrong decision — useful, but not the same thing. And if the key holder rewrites and re-signs the whole chain, only a previously published out-of-band seal, retained outside the service, catches it; without that external copy, signatures alone will not. That is why the seal is part of the mechanism, not an optional extra.
+Correct. The signature proves the record was issued by those keys and has not changed; it does not prove the decision was correct. The decision comes from the policy gate before the call, not from the agent's narrative. If the policy is wrong, you get a verifiable record of a wrong decision — useful, but not the same thing. And if the key holder rewrites and re-signs the whole chain, only a previously published out-of-band seal, retained outside the service, catches it; without that external copy, signatures alone will not. That is why the seal is part of the mechanism, not an optional extra.
 
 **2. “Why not just Datadog? We already have logs.”**
 
@@ -103,6 +107,14 @@ Then you have no evidence, and that is the honest limit. AgentProof only covers 
 
 `AgentProof.cloud gates AI agent actions before they run, signs each decision twice with Ed25519, hash-chains it, and lets anyone verify offline. Scan an mcp.json or Python tool for a free A–F risk grade and a deny-by-default policy.yaml.`
 
+**Pricing snapshot (must match the live page):**
+
+- **Free — $0:** 100 signed decisions/month.
+- **Pro — $99/month:** 5,000/month, Vanta / Drata / Datadog export drafts.
+- **Enterprise — $1,500/month:** 100,000/month, Lloyd's AIUC-1 underwriting pack, private deployment.
+
+All exports are mapping drafts, not certified integrations.
+
 **First comment (founder note — post immediately after launch):**
 
 Hi, I'm [FOUNDER_NAME], the maintainer of AgentProof.cloud.
@@ -115,15 +127,15 @@ What's real today: the scanner is static analysis for MCP configs and Python too
 
 What's not: signatures prove issuance and integrity, not that a decision was correct, and not that a key holder never fabricated a record. Publish the seal out of band. Exports are mapping drafts, not certified integrations. Billing isn't wired yet — checkout creates a tenant and API key but takes no money. Key custody matters too: the current build holds the tenant key encrypted at rest under the service master key, so dual signing is an integrity control, not a separation-of-trust setup.
 
-No customers, ARR, or press coverage to show. It's a public beta from one maintainer. If you run agents that issue refunds, write files, or touch production, I'd like your hardest question — I'll answer it here.
+No customers, ARR, or press coverage yet. It's a public beta from one maintainer. If you run agents that issue refunds, write files, or touch production, I'd like your hardest question — I'll answer it here.
 
 ### Gallery captions (5 screenshots)
 
 **1. Scanner** (`scanner.png`) — Paste an `mcp.json` or Python tool. Real static rules return an A–F grade, per-finding evidence, and a deny-by-default `policy.yaml`. No signup.
 
-**2. Console** (`console.png` / `console-verified.png`) — Every ALLOW/DENY is signed before the action and appended to the chain. Recompute the hashes and both signatures in the console; PASS/FAIL is the product.
+**2. Console** (`console-verified.png`) — Every ALLOW/DENY is signed before the action and appended to the chain. Recompute the hashes and both signatures in the console; PASS/FAIL is the product.
 
-**3. Pricing** (`pricing.png`) — Free: 100 signed decisions/month. Pro: 5,000 plus export drafts. Enterprise: 100,000 plus private deployment. Checkout is sandboxed during beta — it issues a key, not a charge.
+**3. Pricing** (`pricing.png`) — Free: 100 signed decisions/month. Pro: 5,000 plus export drafts. Enterprise: 100,000, Lloyd's AIUC-1 pack, private deployment. Checkout is sandboxed during beta — it issues a key, not a charge.
 
 **4. Integrations** (`integrations.png`) — The same chain exported as Vanta / Drata / Datadog / Lloyd's AIUC-1 mapping drafts. Drafts, not certified integrations — the disclaimer travels in the payload.
 
@@ -176,9 +188,9 @@ If useful, reply with the link. If not, reply "no" and I'll close the loop.
 
 ## 5. Chinese version — cold DM (WeChat / LinkedIn)
 
-**≤120 字（115 字，含标点）：**
+**≤120 字（116 字，含标点）：**
 
-你好[姓名]，看到[公司]的 agent 在做[动作]。可免费扫公开的 mcp.json 或仓库：回你 A–F 评级、逐条证据和默认拒绝策略，无需注册。AgentProof 提供动作前的双签证据，不替代日志。不合适回“不用”即可。
+你好[姓名]，看到[公司]的 agent 在做[动作]。发我公开的 mcp.json 或仓库，我免费回你 A–F 评级、逐条证据和默认拒绝策略，无需注册。AgentProof 提供动作前的双签证据，不替代日志。不合适回“不用”即可。
 
 **English gloss (for internal review only):**
 
@@ -218,7 +230,7 @@ Your agent's audit log may be a self-report. AgentProof gates the action before 
 
 ### X — post 2 (boundary)
 
-Signatures prove a record was issued and has not changed. They do not prove the decision was right, or that the key holder never fabricated it. We say that in the docs and on the site. Publish the seal out of band to catch a full rewrite. Evidence > claims.
+Signatures prove a record was issued and has not changed. They do not prove the decision was right, or that the key holder never fabricated it. We say that in the docs and on the site. Publish the seal out of band to catch a full rewrite. Evidence, not claims.
 
 （中文注：X 两条都在 280 字符内；没有 hashtag 堆砌，也没有增长数据。）
 
@@ -236,7 +248,7 @@ Signatures prove a record was issued and has not changed. They do not prove the 
 
 5. **“Is this just another dashboard?”** The dashboard is a viewer; the deliverable is a signed chain plus an offline verifier, and you can ignore the UI entirely.
 
-6. **“Why trust a one-person project?”** Don't — the core is MIT, so self-host it or verify the output with the public key offline; the evidence should not depend on trusting the maintainer.
+6. **“Why trust a one-person project?”** You shouldn't have to — the core is MIT, so self-host it or verify the output with the public key offline; the evidence should not depend on trusting the maintainer.
 
 **Precondition, not an objection:** if an action can run without passing the gate, it is outside the evidence. Make the gate the only path to the side effect, and monitor for bypass.
 
@@ -250,15 +262,17 @@ Signatures prove a record was issued and has not changed. They do not prove the 
 
 **Current status: NO-GO.** Known blockers: public URL (password-gated), sandbox checkout, test data and unverified claims in screenshots, and a Chinese-only product surface for an English-language launch.
 
+Treat each line as a gate: a single NO-GO blocks publication.
+
 1. **Public URL is live and un-gated.** `[PUBLIC_URL]` resolves over HTTPS from a clean browser and a phone, with no password wall, basic-auth prompt, or “coming soon” page. **Go only if** this works without a session cookie. **Current: NO-GO** — the only candidate URL is password-gated.
 
 2. **The live build is the real build.** The site is in LIVE mode, the scanner calls the real `/api/scan`, and the console is not a localStorage demo passed off as production. If the static/offline demo is reachable, it is labelled “offline demo” on the page, not only in the footer.
 
 3. **Checkout tells the truth.** Every checkout surface says “sandbox — creates a tenant and API key, takes no money” until payments are live, and the CTA does not say “confirm payment” while no money moves. **Go only if** the wording matches the actual `checkout.mode`. **Current: NO-GO** — checkout is a sandbox.
 
-4. **No fake proof anywhere.** Zero customer logos, testimonials, “trusted by” strips, press mentions, invented ARR, invented scan counts, or benchmark numbers. Reset demo tenants and recapture screenshots; the current console capture shows a test tenant and $1,188 ARR. The header ARR must be $0 or hidden unless it is computed from real paid tenants.
+4. **No fake proof anywhere.** Zero customer logos, testimonials, “trusted by” strips, press mentions, invented ARR, invented scan counts, invented decision counts, or benchmark numbers. Reset demo tenants and recapture screenshots; the current console capture shows a test tenant and $1,188 ARR. The header ARR must be $0 or hidden unless it is computed from real paid tenants.
 
-5. **Pricing is internally consistent.** $0 / 100 signed decisions per month; $99 / 5,000; $1,500 / 100,000. Remove or verify any “14-day trial”, “99.9% SLA”, “BYOK”, annual discount, “unlimited”, or other claim not in the verified fact set. **Current: NO-GO** — the pricing page currently shows a trial and an SLA that are not in the verified facts.
+5. **Pricing is internally consistent.** $0 / 100 signed decisions per month; $99 / 5,000; $1,500 / 100,000. Remove or verify any “14-day trial”, “99.9% SLA”, “BYOK”, annual discount, “unlimited”, or other claim not in the verified fact set. **Current: fixed in the site copy** — “14-day trial” and “99.9% SLA” were removed and the pricing screenshot was recaptured; re-verify the live page at launch.
 
 6. **Export disclaimers are visible.** The integrations page says “mapping draft, not a certified integration”, and each payload carries the same disclaimer. The Vanta / Drata / Datadog / Lloyd's AIUC-1 names are not used to imply certification or partnership.
 
@@ -278,7 +292,7 @@ Signatures prove a record was issued and has not changed. They do not prove the 
 
 14. **English product surface is ready.** The overseas launch needs an English UI or an English-primary bilingual UI. The current site is `lang="zh-CN"` and the screenshots are Chinese; do not publish English launch copy over Chinese screenshots and call it ready. Recapture the five gallery images at the platform's required size with no test data.
 
-15. **All placeholders are replaced and tested.** `[PUBLIC_URL]`, `[GITHUB_URL]`, `[FOUNDER_NAME]`, `[EMAIL]`, `[COMPANY]`, and every `[PLACEHOLDER]` in the cold email are filled. Click every link from a logged-out browser.
+15. **All placeholders are replaced and tested.** `[PUBLIC_URL]`, `[GITHUB_URL]`, `[FOUNDER_NAME]`, `[EMAIL]`, `[COMPANY]`, `[FIRST_NAME]`, `[NAME]`, `[ROLE]`, `[SPECIFIC_DETAIL]`, `[SURFACE]`, `[ONE_LINE_ABOUT_THEIR_AGENT]`, and `[REPO/PATH]` are filled. Click every link from a logged-out browser.
 
 16. **Support and incident paths exist.** A monitored inbox, a status page or health endpoint, and a one-line incident response plan. Do not advertise a 99.9% SLA unless there is a real service commitment behind it.
 
