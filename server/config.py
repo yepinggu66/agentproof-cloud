@@ -53,7 +53,7 @@ PLANS: dict[str, dict] = {
             "双签账本 + 链校验 API",
             "1 年账本留存 · 邮件支持",
         ],
-        "cta": "开始 14 天试用",
+        "cta": "开通 Pro",
     },
     "enterprise": {
         "id": "enterprise",
@@ -68,7 +68,7 @@ PLANS: dict[str, dict] = {
             "100,000 条签名决策 / 月",
             "Lloyd's AIUC-1 核保报文",
             "私有化部署 / 自带密钥（BYOK）",
-            "SLA 99.9% · 专属支持通道",
+            "企业版支持通道（SLA 可协商）",
             "7 年账本留存 · 审计陪同",
         ],
         "cta": "联系销售",

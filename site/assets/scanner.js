@@ -102,6 +102,15 @@
     return "mcp." + (slug || "server");
   }
 
+  function isLocalUrl(url) {
+    try {
+      const host = new URL(url).hostname.toLowerCase();
+      return ["localhost", "127.0.0.1", "0.0.0.0", "::1"].includes(host) || host.endsWith(".localhost");
+    } catch (err) {
+      return false;
+    }
+  }
+
   function envValues(server) {
     const out = [];
     const env = server && server.env;
@@ -237,7 +246,7 @@
           "deny: " + action + ".secret.read");
       }
 
-      if (url.toLowerCase().startsWith("http://")) {
+      if (url.toLowerCase().startsWith("http://") && !isLocalUrl(url)) {
         add("MCP-09", name, "high", "远程 MCP 使用明文 HTTP 传输",
           "工具描述与返回内容可被中间人篡改，进而影响 agent 决策（工具投毒）。",
           url,
@@ -280,7 +289,7 @@
       }
 
       const hasAuth = envItems.some((pair) => pair[0].toLowerCase() === "authorization");
-      if (url && !hasAuth) {
+      if (url && !hasAuth && !isLocalUrl(url)) {
         add("MCP-13", name, "medium", "远程 MCP 未携带认证头",
           "远程 MCP 若无鉴权，任何能访问该地址的人都可以替换工具行为。",
           url,

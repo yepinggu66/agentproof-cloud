@@ -29,6 +29,8 @@ and mapping-draft exports for Vanta / Drata / Datadog / Lloyd's AIUC-1.
 
 ![首页 + 免费扫描器](docs/screenshots/home.png)
 
+> 截图中的租户 “Acme Support”、$1,188 ARR 与账本记录均为本地演示数据，不是真实客户或收入。
+
 ![扫描结果：F 级与自动生成的 policy.yaml](docs/screenshots/scanner.png)
 
 ![定价与自助开户](docs/screenshots/pricing.png)
@@ -124,6 +126,27 @@ The suite covers: scanner grades and policy validity, generated YAML is
 deny-by-default, JS/Python scanner parity (grade, findings, capabilities and
 policy byte equality), tenant/key issuance, auth, quota, rate limiting, ledger
 append + verify, tamper/delete detection, and all four export formats.
+
+## Lead generation (optional tooling)
+
+`tools/leadgen.py` reads public GitHub repositories (read-only API, no clone, no
+dependency install, no execution of target code), runs the same scanner that
+powers the website, and writes a per-repository report plus a lead list:
+
+```bash
+python tools/leadgen.py --search "mcp server in:name" --limit 10
+python tools/leadgen.py --repos owner/repo,owner/repo2 --max-files 6
+```
+
+Outputs: `leads.csv`, `summary.md`, `summary.json`, `reports/<owner>__<repo>.md`.
+Secret-looking values are redacted before writing; reports carry an explicit
+"static analysis, not exploit proof" disclaimer and an opt-out line. Use it
+only for public code or code a recipient shares with you — never auto-send.
+
+Launch copy drafts (Show HN, Product Hunt, cold email, objection handling and
+an honest pre-publish checklist) live in [docs/launch-copy.md](docs/launch-copy.md).
+They are marked **pre-publish / NO-GO** until the public URL is live and the
+checklist is green.
 
 ## Deploy
 

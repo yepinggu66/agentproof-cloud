@@ -174,6 +174,17 @@ def _server_actions(name: str) -> str:
     return f"mcp.{slug}"
 
 
+def _is_local_url(url: str) -> bool:
+    """True for loopback / dev-server URLs, where plain HTTP is normal."""
+    try:
+        from urllib.parse import urlparse
+
+        host = (urlparse(url).hostname or "").lower()
+    except ValueError:
+        return False
+    return host in {"localhost", "127.0.0.1", "0.0.0.0", "::1"} or host.endswith(".localhost")
+
+
 def _env_values(server: dict[str, Any]) -> Iterable[tuple[str, str]]:
     env = server.get("env")
     if isinstance(env, dict):
@@ -357,7 +368,7 @@ def scan_mcp(text: str, *, subject: str = "scanned-agent") -> ScanResult:
             )
 
         # MCP-09 plain http transport
-        if url.lower().startswith("http://"):
+        if url.lower().startswith("http://") and not _is_local_url(url):
             add(
                 "MCP-09",
                 name,
@@ -416,7 +427,7 @@ def scan_mcp(text: str, *, subject: str = "scanned-agent") -> ScanResult:
                     break
 
         # MCP-13 remote server with no auth header
-        if url and not any(k.lower() == "authorization" for k, _ in _env_values(server)):
+        if url and not _is_local_url(url) and not any(k.lower() == "authorization" for k, _ in _env_values(server)):
             add(
                 "MCP-13",
                 name,

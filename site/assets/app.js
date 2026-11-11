@@ -22,12 +22,12 @@
       id: "pro", name: "Pro 合规团队版", tagline: "面向需要向客户/审计提交证据的团队",
       price_monthly: 99, price_annual: 950, quota_events: 5000, seats: 5, retention_days: 365,
       features: ["5,000 条签名决策 / 月", "Vanta / Drata / Datadog 一键导出", "EU AI Act 第 26 条证据包", "双签账本 + 链校验 API", "1 年账本留存 · 邮件支持"],
-      cta: "开始 14 天试用",
+      cta: "开通 Pro",
     },
     enterprise: {
       id: "enterprise", name: "Enterprise 保险核保版", tagline: "承保、并购尽调与大规模部署",
       price_monthly: 1500, price_annual: 14400, quota_events: 100000, seats: 50, retention_days: 2555,
-      features: ["100,000 条签名决策 / 月", "Lloyd's AIUC-1 核保报文", "私有化部署 / 自带密钥（BYOK）", "SLA 99.9% · 专属支持通道", "7 年账本留存 · 审计陪同"],
+      features: ["100,000 条签名决策 / 月", "Lloyd's AIUC-1 核保报文", "私有化部署 / 自带密钥（BYOK）", "企业版支持通道（SLA 可协商）", "7 年账本留存 · 审计陪同"],
       cta: "联系销售",
     },
   };
