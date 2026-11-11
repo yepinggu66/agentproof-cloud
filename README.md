@@ -22,7 +22,7 @@ scanner, plus the original 227-test suite. `pip install -e .` gives you the
   server/               FastAPI service: scanner, tenants, signed ledger, exports
   site/                 the static, self-contained commercial site (4 views)
   tools/                lead-gen + signed audit report generator
-  docs/                 commercial plan, launch copy, sample audit, v0.2.0 archive
+  docs/                 architecture, commercial plan, launch copy, sample audit, v0.2.0 archive
   demo/ examples/       v0.2.0 demo artifacts and usage examples
   netlify/functions/    stateless preview API (never fabricates tenants or ARR)
   deploy/v0.2.0/        original Dockerfile / render / railway configs (archived)
