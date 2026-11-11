@@ -704,6 +704,9 @@ p { margin: 0 0 14px; }
 .audit-card li { position: relative; padding-left: 18px; font-size: 13px; color: #c6d0e4; }
 .audit-card li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
 .audit-note { color: var(--muted-2); font-size: 12px; margin: 16px 0 0; }
+.audit-note a { color: var(--accent-2); }
+.audit-secondary { display: block; text-align: center; margin-top: 8px; font-size: 11.5px; color: var(--muted-2); }
+.audit-secondary:hover { color: var(--text); }
 
 /* ---------------------------------------------------------------- footer */
 .footer { border-top: 1px solid var(--line); margin-top: 80px; background: rgba(4, 7, 13, 0.85); }
