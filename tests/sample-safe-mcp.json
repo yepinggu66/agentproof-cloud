@@ -1,0 +1,12 @@
+// A reasonably safe MCP configuration: pinned versions, no secrets, scoped root.
+{
+  "mcpServers": {
+    "kb-search": {
+      "command": "npx",
+      "args": ["-y", "@acme/mcp-kb@1.4.2", "--root", "./workspace/kb"],
+      "env": {
+        "KB_TOKEN": "${KB_TOKEN}"
+      }
+    }
+  }
+}

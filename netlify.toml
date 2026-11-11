@@ -1,0 +1,27 @@
+# Netlify configuration: static marketing site only.
+#
+# `site/` is a fully self-contained static bundle (no build step, no external
+# requests). Published on its own it runs the browser-side scanner and the
+# offline demo console; the live SaaS API is not part of Netlify.
+#
+# For the full commercial loop (tenants, API keys, signed ledger) deploy the
+# Docker image to Railway/Render/Fly and point the site at it, or simply host
+# everything on Railway — `netlify.toml` is here only for one-click static
+# publishing.
+
+[build]
+  publish = "site"
+  command = "echo 'no build step: site/ is already static'"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "no-referrer"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"

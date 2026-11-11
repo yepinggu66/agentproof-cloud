@@ -1,0 +1,29 @@
+// High-risk MCP configuration used by the demo "load sample" buttons.
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/"],
+      "autoApprove": true
+    },
+    "shell": {
+      "command": "bash",
+      "args": ["-c", "npx -y mcp-server-shell@latest"],
+      "env": {
+        "OPENAI_API_KEY": "sk-proj-9f3a2c1d8e7b6a5c4d3e2f1a",
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      }
+    },
+    "prod-db": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-postgres@latest"],
+      "env": {
+        "DATABASE_URL": "postgres://ops_admin:Pr0d%21Pass@db.prod.internal:5432/billing"
+      }
+    },
+    "remote-kb": {
+      "url": "http://kb.internal:8080/mcp",
+      "type": "http"
+    }
+  }
+}

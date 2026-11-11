@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentProof.cloud — 给 AI Agent 的动作签一份可离线验证的证据</title>
+  <meta name="description" content="AgentProof.cloud：厂商中立的 AI Agent 合规证据平台。动作执行前签发 Ed25519 双签回执，追加式哈希链，任何人可用公钥离线验证。免费在线扫描 mcp.json 与 Python 工具代码。">
+  <meta name="theme-color" content="#070b14">
+  <meta property="og:title" content="AgentProof.cloud — Agent 的自我汇报不是证据">
+  <meta property="og:description" content="先签名，后执行。哈希链 + Ed25519 双签 + 离线验证，把 agent 动作变成审计可用的证据。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="bg-layer" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#/home" aria-label="AgentProof.cloud 首页">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 2.5 27.5 9v14L16 29.5 4.5 23V9z" fill="none" stroke="url(#bg1)" stroke-width="1.6"/>
+          <path d="M10.5 16.2l3.6 3.6 7.6-8" fill="none" stroke="url(#bg1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs><linearGradient id="bg1" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#8b7cff"/><stop offset="1" stop-color="#22d3ee"/>
+          </linearGradient></defs>
+        </svg>
+        <span>AgentProof<span class="brand-dot">.cloud</span></span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="主导航">
+        <a href="#/home" data-nav="home">首页</a>
+        <a href="#/pricing" data-nav="pricing">定价</a>
+        <a href="#/console" data-nav="console">客户控制台</a>
+        <a href="#/integrations" data-nav="integrations">生态集成</a>
+      </nav>
+
+      <div class="top-actions">
+        <span class="arr-pill" id="arrPill" title="平台当前年度经常性收入（由真实开通租户计算）">
+          <span class="dot-live"></span><b id="arrValue">$0</b><span class="arr-label">ARR</span>
+        </span>
+        <a class="btn btn-primary btn-sm" href="#/home" data-scroll="scanner">免费扫描</a>
+        <button class="nav-toggle" id="navToggle" aria-label="展开菜单" aria-expanded="false">☰</button>
+      </div>
+    </div>
+    <div class="offline-banner" id="offlineBanner" hidden>
+      离线预览模式：扫描器可用；控制台与开通流程需要后端服务（运行 <code>python -m uvicorn server.app:app</code>）。
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ================= HOME ================= -->
+    <section class="view" id="view-home" data-view="home">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="pulse"></span>Vendor-neutral · MIT core · 无外部请求</p>
+          <h1>Agent 的自我汇报<br>不是<span class="grad">证据</span>。</h1>
+          <p class="lede">
+            当 agent 说“我已经查过了、我已经批准了”，你拿到的是一份声称。
+            AgentProof 在动作发生<strong>之前</strong>签发 Ed25519 双签回执，写进追加式哈希链，
+            任何人拿着公钥就能离线验证——不联网、不注册、不信任厂商。
+          </p>
+          <div class="hero-cta">
+            <a class="btn btn-primary btn-lg" href="#/home" data-scroll="scanner">免费扫描我的 Agent</a>
+            <a class="btn btn-ghost btn-lg" href="#/pricing">查看定价 <span class="arrow">→</span></a>
+          </div>
+          <ul class="trust-row">
+            <li>Ed25519 双签</li>
+            <li>SHA-256 哈希链</li>
+            <li>离线 verify</li>
+            <li>浏览器独立复算</li>
+          </ul>
+        </div>
+
+        <div class="hero-art" aria-hidden="true">
+          <div class="orbit orbit-a"></div>
+          <div class="orbit orbit-b"></div>
+          <div class="seal-card">
+            <div class="seal-head"><span class="dot-live"></span> signed before action</div>
+            <div class="seal-row"><span>decision</span><b class="ok">ALLOW</b></div>
+            <div class="seal-row"><span>action</span><b>order.refund</b></div>
+            <div class="seal-row"><span>actor</span><b>support-agent</b></div>
+            <div class="seal-row"><span>policy</span><b>acme-v3</b></div>
+            <div class="seal-hash">sha256:9f2c…4a1e</div>
+            <div class="seal-sigs">
+              <span class="sig">platform ✓</span>
+              <span class="sig">tenant ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-strip" id="statStrip">
+        <div class="stat"><b id="statArr">$0</b><span>平台 ARR</span></div>
+        <div class="stat"><b id="statTenants">0</b><span>付费/活跃租户</span></div>
+        <div class="stat"><b id="statScans">0</b><span>已扫描配置</span></div>
+        <div class="stat"><b id="statDecisions">0</b><span>签名决策</span></div>
+        <div class="stat"><b id="statToday">0</b><span>今日新增决策</span></div>
+      </div>
+
+      <!-- ===== scanner ===== -->
+      <section class="section" id="scanner">
+        <header class="section-head">
+          <p class="eyebrow">免费诊断</p>
+          <h2>30 秒扫描你的 Agent 攻击面</h2>
+          <p class="sub">粘贴 <code>mcp.json</code> 或 Python 工具代码，立刻得到风险评级 F/A 与一份默认拒绝的 <code>policy.yaml</code>。不上传密钥，不需要注册。</p>
+        </header>
+
+        <div class="scan-grid">
+          <div class="panel scan-input-card">
+            <div class="segmented" role="tablist" aria-label="输入类型">
+              <button type="button" class="seg-btn is-active" data-kind="mcp" role="tab" aria-selected="true">mcp.json</button>
+              <button type="button" class="seg-btn" data-kind="python" role="tab" aria-selected="false">Python 工具代码</button>
+            </div>
+            <div class="sample-row">
+              <button type="button" class="chip chip-danger" data-sample="danger">载入高危 mcp.json 样例</button>
+              <button type="button" class="chip" data-sample="safe">载入安全样例</button>
+              <button type="button" class="chip chip-ghost" data-sample="python">载入裸奔 Python 工具样例</button>
+            </div>
+            <label class="sr-only" for="scanInput">待扫描内容</label>
+            <textarea id="scanInput" spellcheck="false" placeholder='粘贴 mcp.json，例如：&#10;{&#10;  "mcpServers": {&#10;    "filesystem": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-filesystem", "/"] }&#10;  }&#10;}'></textarea>
+            <div class="scan-actions">
+              <button type="button" class="btn btn-primary" id="scanBtn">🚀 立即执行安全扫描</button>
+              <span class="hint" id="scanHint">免费 · 无需注册 · 代码只在请求内存中分析</span>
+            </div>
+            <div class="alert alert-error" id="scanError" hidden></div>
+          </div>
+
+          <div class="panel scan-result-card" id="scanResult" hidden>
+            <div class="result-head">
+              <div class="grade-badge" id="gradeBadge" data-grade="A"><span id="gradeLetter">A</span><small>安全评级</small></div>
+              <div class="result-meta">
+                <b id="resultKind">mcp.json</b>
+                <span id="resultSummary">—</span>
+                <span class="result-digest" id="resultDigest"></span>
+              </div>
+              <button type="button" class="icon-btn" id="resultClose" aria-label="关闭结果">✕</button>
+            </div>
+
+            <div class="finding-counts" id="findingCounts"></div>
+            <div class="findings" id="findingsList"></div>
+
+            <div class="policy-block">
+              <div class="policy-head">
+                <span>自动生成 <code>policy.yaml</code></span>
+                <div class="policy-actions">
+                  <button type="button" class="chip chip-ghost" id="copyPolicy">复制</button>
+                  <button type="button" class="chip chip-ghost" id="downloadPolicy">下载</button>
+                </div>
+              </div>
+              <pre class="code" id="policyPreview"></pre>
+            </div>
+
+            <div class="funnel-cta">
+              <div>
+                <b>把这份策略接进生产，让每次动作都有双签回执</b>
+                <span>Pro $99/月 · 5,000 条签名决策 · Vanta/Drata 一键导出</span>
+              </div>
+              <a class="btn btn-primary btn-sm" href="#/pricing">开通 Pro →</a>
+            </div>
+          </div>
+
+          <div class="panel scan-placeholder" id="scanPlaceholder">
+            <div class="placeholder-art">🛡️</div>
+            <h3>先看看你能拿到什么</h3>
+            <p>扫描结果会给出：风险评级、逐条漏洞证据、修复建议，以及一份可直接落地的默认拒绝策略。</p>
+            <ul class="checklist">
+              <li>全量自动批准 → 强制审批</li>
+              <li>明文凭据 → 运行时注入</li>
+              <li>过宽根目录 → 工作区隔离</li>
+              <li>未锁定版本 → 供应链钉版本</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== how it works ===== -->
+      <section class="section">
+        <header class="section-head">
+          <p class="eyebrow">机制</p>
+          <h2>先签名，后执行</h2>
+          <p class="sub">顺序反过来，审计价值就没了。回执签在副作用之前，缺失的回执本身就是一个 findings：“批准了但从未执行”。</p>
+        </header>
+        <ol class="steps">
+          <li><span class="step-num">01</span><h3>策略门判定</h3><p>默认拒绝。只有命中显式 allow 规则、且全部前置条件满足才放行；检查抛错直接 HALT。</p></li>
+          <li><span class="step-num">02</span><h3>动作前签发回执</h3><p>平台密钥与租户密钥各签一次，覆盖同一份规范化字节；签名失败即视为不允许执行。</p></li>
+          <li><span class="step-num">03</span><h3>写入哈希链</h3><p>每条记录嵌入上一条哈希，序号连续。改一个字段、删一条、换顺序，链立刻断。</p></li>
+          <li><span class="step-num">04</span><h3>密封并离线验证</h3><p>把 seal 带外发布；任何人用公钥重算即可发现整链被重写。审计不需要联网。</p></li>
+        </ol>
+      </section>
+
+      <!-- ===== features ===== -->
+      <section class="section">
+        <header class="section-head">
+          <p class="eyebrow">能力</p>
+          <h2>合规官能打开，工程师能接入</h2>
+        </header>
+        <div class="feature-grid">
+          <article class="feature"><h3>离线可验证</h3><p>verify 只依赖公钥与链文件：没有账号、没有网络、没有厂商在环。审计方复算通过才算通过。</p></article>
+          <article class="feature"><h3>单文件证据页</h3><p>一个自包含 HTML，内嵌 SHA-256 与独立规范化实现，浏览器里点一下就能自己复算整条链。</p></article>
+          <article class="feature"><h3>默认拒绝策略</h3><p>没有 default-allow 路径。未声明能力、超输入上限、缺 scope、条件抛错，全部非放行。</p></article>
+          <article class="feature"><h3>回归测试</h3><p>把一次失败 trace 转成可重放用例：同一输入、同一策略，重放差异即回归。</p></article>
+          <article class="feature"><h3>EU AI Act 第 26 条</h3><p>部署方证据包：决策、策略、原因、签名、控制映射，以及这份包明确<em>不能</em>证明什么。</p></article>
+          <article class="feature"><h3>生态导出</h3><p>Vanta / Drata / Datadog / Lloyd's AIUC-1 报文一键生成，接进现有审计与告警链路。</p></article>
+        </div>
+      </section>
+
+      <!-- ===== honesty ===== -->
+      <section class="section">
+        <div class="honesty">
+          <div>
+            <p class="eyebrow">边界</p>
+            <h2>验证能证明什么，不能证明什么</h2>
+            <p class="sub">任何签名方案都证不了“记录从未被伪造”。把话说清楚，比承诺一个做不到的“绝对可信”更值钱。</p>
+          </div>
+          <div class="honesty-cols">
+            <div class="honesty-col ok-col">
+              <h4>可以证明</h4>
+              <ul>
+                <li>记录未被编辑、插入、删除或重排</li>
+                <li>每条签名有效、无步骤被重放</li>
+                <li>密封与链尾一致</li>
+                <li>实现与实现之间互相复算一致</li>
+              </ul>
+            </div>
+            <div class="honesty-col no-col">
+              <h4>不能证明</h4>
+              <ul>
+                <li>记录从未被伪造（签名密钥持有人可写假决策）</li>
+                <li>决策本身在业务上正确</li>
+                <li>是否满足某位监管者的具体要求</li>
+                <li>整链重写——除非你比对带外密封</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section final-cta">
+        <h2>让下一次审计，从“你信我”变成“你自己算”。</h2>
+        <p>免费版 100 条签名决策/月，足够把一条完整链路跑通。需要对外提交证据时再升级。</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-lg" href="#/pricing">免费开始</a>
+          <a class="btn btn-ghost btn-lg" href="#/home" data-scroll="scanner">先扫一遍</a>
+        </div>
+      </section>
+    </section>
+
+    <!-- ================= PRICING ================= -->
+    <section class="view" id="view-pricing" data-view="pricing" hidden>
+      <div class="page-head">
+        <p class="eyebrow">定价</p>
+        <h1>按证据量付费，不按“席位”收智商税</h1>
+        <p class="sub">扫描永远免费。签名决策按条计费，配额按月重置；年付省 20%。</p>
+        <div class="billing-toggle" id="billingToggle" role="group" aria-label="计费周期">
+          <button type="button" class="toggle-btn is-active" data-billing="monthly">月付</button>
+          <button type="button" class="toggle-btn" data-billing="annual">年付 <span class="save-tag">省 20%</span></button>
+        </div>
+      </div>
+
+      <div class="pricing-grid" id="pricingGrid"></div>
+
+      <section class="section">
+        <div class="panel checkout" id="checkout">
+          <div class="checkout-copy">
+            <p class="eyebrow">30 秒开通</p>
+            <h2>立即生成 API Key</h2>
+            <p>填写公司名与邮箱即可开通，控制台会立即出现你的租户、配额和双签指纹。演示环境不接支付网关，不会扣款。</p>
+            <ul class="checklist">
+              <li>即刻签发 <code>ap_live_…</code> 生产密钥</li>
+              <li>沙箱模式：<b>不会真实扣款</b></li>
+              <li>可随时在控制台查看 ARR 与账本</li>
+            </ul>
+          </div>
+          <form class="checkout-form" id="signupForm" novalidate>
+            <div class="field">
+              <label for="companyInput">公司 / 团队名称</label>
+              <input id="companyInput" name="company" type="text" autocomplete="organization" placeholder="Acme Support" required maxlength="80">
+            </div>
+            <div class="field">
+              <label for="emailInput">工作邮箱</label>
+              <input id="emailInput" name="email" type="email" autocomplete="email" placeholder="ops@acme.dev" required maxlength="120">
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="planSelect">套餐</label>
+                <select id="planSelect" name="plan">
+                  <option value="free">Free 开发者版 — $0/月</option>
+                  <option value="pro" selected>Pro 合规团队版 — $99/月</option>
+                  <option value="enterprise">Enterprise 保险核保版 — $1,500/月</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="billingSelect">计费周期</label>
+                <select id="billingSelect" name="billing">
+                  <option value="monthly" selected>按月</option>
+                  <option value="annual">按年（省 20%）</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" id="signupBtn">💳 确认付款并立即生成 API Key</button>
+            <p class="form-note">演示沙箱：点击后立即签发密钥，但不产生任何真实付款。接入 Stripe 后此处会跳转收银台。</p>
+            <div class="alert alert-error" id="signupError" hidden></div>
+          </form>
+        </div>
+
+        <div class="panel signup-success" id="signupSuccess" hidden>
+          <div class="success-icon">✓</div>
+          <div class="success-body">
+            <p class="eyebrow">租户已创建</p>
+            <h2 id="successCompany">—</h2>
+            <p class="success-sub" id="successPlan">—</p>
+            <div class="key-box">
+              <label>生产 API Key（只显示这一次）</label>
+              <div class="key-row"><code id="newApiKey">—</code>
+                <button type="button" class="chip chip-ghost" id="copyKeyBtn">复制</button>
+              </div>
+            </div>
+            <div class="success-meta" id="successMeta"></div>
+            <p class="form-note" id="successNote"></p>
+            <div class="hero-cta">
+              <a class="btn btn-primary" id="goConsoleBtn" href="#/console">进入客户控制台 →</a>
+              <button type="button" class="btn btn-ghost" id="anotherTenantBtn">再开一个</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="panel faq">
+          <h2>常见问题</h2>
+          <details><summary>免费版能拿到完整的证据链吗？</summary><p>能。Free 版每月 100 条签名决策，verify、浏览器复算、policy 生成、证据包导出全部可用。区别在配额、留存期和生态导出。</p></details>
+          <details><summary>“沙箱模式”是什么意思？</summary><p>本站当前没有接入支付网关：点击开通会真实创建租户并签发密钥，但不会扣款。把 <code>STRIPE_SECRET_KEY</code> 接进来并把 checkout 切到 live，就能变成真实收费。</p></details>
+          <details><summary>密钥丢了怎么办？</summary><p>API Key 只存 SHA-256 摘要，平台无法还原明文。演示环境建议直接重新开通一个租户；生产环境应实现轮换（同一租户可持有多个密钥）。</p></details>
+          <details><summary>能把证据导出给审计/保险方吗？</summary><p>能。控制台生成 Vanta / Drata / Datadog / Lloyd's AIUC-1 四种报文草案，附带链完整性、公钥指纹与免责声明。</p></details>
+        </div>
+      </section>
+    </section>
+
+    <!-- ================= CONSOLE ================= -->
+    <section class="view" id="view-console" data-view="console" hidden>
+      <div class="page-head">
+        <p class="eyebrow">客户控制台</p>
+        <h1>你的 Agent 正在被签名记录</h1>
+        <p class="sub">用开通时拿到的 API Key 登录。所有动作都写入双签哈希链；随时可离线复算。</p>
+      </div>
+
+      <div class="panel login-card" id="loginCard">
+        <h2>输入 API Key</h2>
+        <p>格式 <code>ap_live_…</code> 或 <code>ap_free_…</code>。密钥只用于本次会话，保存在浏览器 localStorage。</p>
+        <div class="login-row">
+          <input id="loginKey" type="password" placeholder="ap_live_…" autocomplete="off" spellcheck="false">
+          <button type="button" class="btn btn-primary" id="loginBtn">进入控制台</button>
+        </div>
+        <div class="alert alert-error" id="loginError" hidden></div>
+        <p class="form-note">还没有密钥？<a href="#/pricing">30 秒开通 →</a></p>
+      </div>
+
+      <div id="consoleRoot" hidden>
+        <div class="console-topbar">
+          <div class="console-tenant">
+            <span class="tenant-badge" id="tenantInitial">A</span>
+            <div>
+              <b id="tenantCompany">—</b>
+              <span id="tenantMeta">—</span>
+            </div>
+          </div>
+          <div class="console-actions">
+            <span class="mode-tag" id="dataModeTag">LIVE</span>
+            <button type="button" class="btn btn-ghost btn-sm" id="refreshBtn">刷新</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="logoutBtn">退出</button>
+          </div>
+        </div>
+
+        <div class="console-metrics">
+          <div class="metric"><span>套餐</span><b id="metricPlan">—</b><small id="metricBilling">—</small></div>
+          <div class="metric"><span>本月已用 / 配额</span><b id="metricUsage">—</b><div class="quota-bar"><i id="quotaFill"></i></div></div>
+          <div class="metric"><span>账本记录</span><b id="metricRecords">—</b><small id="metricRetention">—</small></div>
+          <div class="metric"><span>平台 ARR</span><b id="metricArr">—</b><small>由真实租户计算</small></div>
+        </div>
+
+        <div class="console-grid">
+          <div class="panel ledger-panel">
+            <div class="panel-head">
+              <h3>实时双签账本</h3>
+              <span class="live-dot" id="liveDot"><span class="dot-live"></span>实时</span>
+            </div>
+            <div class="table-wrap">
+              <table class="ledger-table">
+                <thead><tr><th>#</th><th>时间</th><th>动作</th><th>决策</th><th>原因</th><th>来源</th></tr></thead>
+                <tbody id="ledgerBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <aside class="console-side">
+            <div class="panel">
+              <h3>签发一条决策</h3>
+              <p class="mini">模拟生产环境的拦截，验证双签与链增长。</p>
+              <div class="field"><label for="simAction">动作</label><input id="simAction" type="text" value="order.refund" maxlength="120"></div>
+              <div class="field"><label for="simDecision">决策</label>
+                <select id="simDecision"><option>ALLOW</option><option>HALT</option><option>DENY</option></select>
+              </div>
+              <div class="field"><label for="simReason">原因</label><input id="simReason" type="text" value="金额超过 500 需人工复核" maxlength="400"></div>
+              <button type="button" class="btn btn-primary btn-block" id="simulateBtn">写入签名决策</button>
+            </div>
+
+            <div class="panel">
+              <h3>完整性校验</h3>
+              <button type="button" class="btn btn-ghost btn-block" id="verifyBtn">重新计算哈希链</button>
+              <div class="verify-verdict" id="verifyVerdict" hidden></div>
+              <ul class="verify-checks" id="verifyChecks"></ul>
+            </div>
+
+            <div class="panel">
+              <h3>双签指纹</h3>
+              <div class="fingerprint"><span>平台密钥</span><code id="fpPlatform">—</code><button type="button" class="copy-mini" data-copy="fpPlatform">复制</button></div>
+              <div class="fingerprint"><span>租户密钥</span><code id="fpTenant">—</code><button type="button" class="copy-mini" data-copy="fpTenant">复制</button></div>
+              <p class="mini">指纹 = SHA-256(32 字节公钥)。可在带外比对，确认签名方身份。</p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INTEGRATIONS ================= -->
+    <section class="view" id="view-integrations" data-view="integrations" hidden>
+      <div class="page-head">
+        <p class="eyebrow">生态导出</p>
+        <h1>证据不该只活在自己的后台里</h1>
+        <p class="sub">把同一份签名链导出成 Vanta、Drata、Datadog 与 Lloyd's AIUC-1 的报文草案，接进现有审计、监控与核保流程。</p>
+      </div>
+
+      <div class="vendor-grid" id="vendorGrid"></div>
+
+      <div class="panel export-panel" id="exportPanel" hidden>
+        <div class="panel-head">
+          <h3 id="exportTitle">—</h3>
+          <div class="policy-actions">
+            <button type="button" class="chip chip-ghost" id="copyExport">复制 JSON</button>
+            <button type="button" class="chip chip-ghost" id="downloadExport">下载</button>
+          </div>
+        </div>
+        <div class="export-meta" id="exportMeta"></div>
+        <pre class="code code-tall" id="exportPreview">{}</pre>
+      </div>
+
+      <div class="panel login-card" id="integrationLogin">
+        <h2>先登录租户</h2>
+        <p>导出需要 API Key（Free 版即可）。<a href="#/pricing">去开通 →</a></p>
+        <div class="login-row">
+          <input id="exportKey" type="password" placeholder="ap_live_…" autocomplete="off" spellcheck="false">
+          <button type="button" class="btn btn-primary" id="exportLoginBtn">使用该密钥</button>
+        </div>
+        <div class="alert alert-error" id="exportError" hidden></div>
+      </div>
+
+      <section class="section">
+        <div class="panel disclaimer">
+          <h3>关于这些报文的诚实说明</h3>
+          <p>字段映射依据各厂商公开文档整理，属于 <b>mapping draft</b>，未经厂商认证。真正接入前请对照对方最新 schema；给监管方/核保方的材料是证据，不是合规结论。</p>
+          <ul>
+            <li><b>Vanta</b>：SOC 2 控制证据附件（CC6/CC7 系列映射草案）</li>
+            <li><b>Drata</b>：连续监控结果与测试项状态</li>
+            <li><b>Datadog</b>：事件 API v1 载荷，DENY/HALT 进入告警通道</li>
+            <li><b>Lloyd's AIUC-1</b>：可归因、不可抵赖、保留期三类核保声明</li>
+          </ul>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <b>AgentProof<span class="brand-dot">.cloud</span></b>
+        <p>Vendor-neutral compliance evidence for AI agents.<br>先签名，后执行。</p>
+      </div>
+      <div class="footer-cols">
+        <div><h4>产品</h4><a href="#/home" data-scroll="scanner">免费扫描</a><a href="#/pricing">定价</a><a href="#/console">控制台</a></div>
+        <div><h4>证据</h4><a href="#/integrations">Vanta</a><a href="#/integrations">Drata</a><a href="#/integrations">Datadog</a></div>
+        <div><h4>边界</h4><a href="#/home" data-scroll="honesty">能证明什么</a><a href="#/pricing">常见问题</a><a href="/api/health">服务状态</a></div>
+      </div>
+    </div>
+    <p class="footer-note">© 2026 AgentProof.cloud · 证据材料，不构成法律意见或合规认证。演示站点：支付未接入真实网关。</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/scanner.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

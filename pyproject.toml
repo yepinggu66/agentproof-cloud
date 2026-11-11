@@ -1,0 +1,16 @@
+[project]
+name = "agentproof-cloud"
+version = "0.1.0"
+description = "AgentProof.cloud — commercial site and SaaS portal for vendor-neutral AI agent compliance evidence."
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q --strict-markers"
+filterwarnings = ["error::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["server"]
+branch = true
