@@ -21,7 +21,6 @@ and mapping-draft exports for Vanta / Drata / Datadog / Lloyd's AIUC-1.
   Dockerfile            single-image deployment (site + API + SQLite volume)
   railway.json          Railway one-click deploy config
   netlify.toml          static-only publish config for the marketing site
-  .github/workflows/    GitHub Pages deploy (needs `workflow` token scope)
 ```
 
 ## The four views
@@ -173,6 +172,14 @@ railway volume add  # mount at /data
 docker build -t agentproof-cloud .
 docker run -p 8080:8080 -v agentproof-data:/data agentproof-cloud
 ```
+
+### GitHub Pages (static preview, already live)
+
+The public preview is published from the `gh-pages` branch: `git subtree split
+--prefix=site -b pages-build` then `git push origin pages-build:gh-pages`.
+`site/.nojekyll` keeps Jekyll out of the way. Automatic Actions-based deploys
+need a token with the `workflow` scope, which the current `gh` login does not
+have; refresh with `gh auth refresh -s workflow` to enable that later.
 
 ### Netlify (static marketing site only)
 
