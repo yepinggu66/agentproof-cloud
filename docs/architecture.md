@@ -64,7 +64,7 @@ top and is a separate analysis depth, not a second copy of the MCP rules.
 | Artifact | What it serves | Where |
 |---|---|---|
 | `site/` (static) | marketing site, browser scanner, offline demo console | GitHub Pages (live), Netlify |
-| `server/app.py` (FastAPI + SQLite) | real API: scan, tenants, signed ledger, exports | Docker / Railway / any host |
+| `server/app.py` (FastAPI + SQLite) | real API: scan, tenants, signed ledger, exports | **Railway (live: agentproof-cloud-production.up.railway.app)**, Docker / any host |
 | `netlify/functions/api.mts` | stateless preview endpoints only; refuses to issue tenants or ARR | Netlify |
 
 ## What exists vs what is missing
