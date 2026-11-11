@@ -1,0 +1,59 @@
+name: 审计请求 / Audit request
+description: 申请一次 Agent / MCP 安全审计（付费人工服务）
+title: "[审计] <公司/项目名> — <仓库或配置范围>"
+labels: ["audit-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        这是付费人工审计的受理入口。提交前请确认：
+        - 你拥有或获授权评估该仓库/配置；
+        - 不要粘贴真实密钥、客户数据或私有仓库访问令牌；
+        - 报告是静态风险线索，不是漏洞利用证明或合规认证。
+
+        收到后我会确认范围与报价（Quick Audit $490 / Deep Audit $1,900），
+        48 小时内交付签名审计报告（HTML/PDF + Markdown + policy.yaml）。
+  - type: input
+    id: company
+    attributes:
+      label: 公司 / 项目
+      placeholder: Acme Support
+    validations:
+      required: true
+  - type: input
+    id: contact
+    attributes:
+      label: 联系邮箱
+      placeholder: you@company.com
+    validations:
+      required: true
+  - type: dropdown
+    id: tier
+    attributes:
+      label: 审计范围
+      options:
+        - Quick Audit — 单个仓库或一份 mcp.json（$490）
+        - Deep Audit — 完整 agent 系统，≤5 个服务（$1,900）
+        - 还不确定，先聊聊
+    validations:
+      required: true
+  - type: input
+    id: repo
+    attributes:
+      label: 公开仓库 / 配置链接（可选）
+      placeholder: https://github.com/org/repo
+  - type: textarea
+    id: scope
+    attributes:
+      label: 范围与关注点
+      description: agent 会执行哪些动作？最担心什么（shell 执行 / 数据外泄 / 权限过大）？
+      placeholder: 我们的 agent 会调用 mcp 服务执行 git/文件/HTTP 操作，担心工具被提示注入劫持。
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 确认
+      options:
+        - label: 我确认有权评估提交的范围，且提交内容不含真实密钥或客户数据
+          required: true
+        - label: 我理解报告是静态风险线索，不是合规认证或法律意见
+          required: true

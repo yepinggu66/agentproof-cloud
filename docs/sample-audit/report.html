@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentProof 安全审计报告 — Acme Support Agent</title>
+<style>
+  :root { --bg:#070b14; --panel:#101828; --line:rgba(255,255,255,.1); --text:#e9edf7; --muted:#9aa6bf; --accent:#7c5cff; --accent2:#22d3ee; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.7 "Segoe UI", "Noto Sans SC", system-ui, sans-serif; }
+  .page { max-width:900px; margin:0 auto; padding:48px 32px 80px; }
+  header.cover { border:1px solid var(--line); border-radius:20px; padding:36px; background:linear-gradient(160deg,#141a2c,#0b1020); margin-bottom:28px; }
+  .brand { color:var(--accent2); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:12px; }
+  h1 { font-size:34px; letter-spacing:-.02em; margin:10px 0 6px; }
+  .sub { color:var(--muted); margin:0 0 26px; }
+  .cover-grid { display:flex; gap:36px; flex-wrap:wrap; align-items:center; }
+  .grade { width:120px; height:120px; border-radius:50%; display:grid; place-items:center;
+            background:radial-gradient(circle at 50% 50%, #0b1020 56%, transparent 58%), conic-gradient(#f87171 0 .78turn, rgba(255,255,255,.08) .78turn 1turn); }
+  .grade b { font-size:44px; color:#f87171; }
+  .grade small { display:block; font-size:10px; color:var(--muted); text-align:center; letter-spacing:.1em; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; flex:1; min-width:280px; }
+  .stat { border:1px solid var(--line); border-radius:12px; padding:12px; background:rgba(255,255,255,.03); }
+  .stat b { display:block; font-size:20px; }
+  .stat span { color:var(--muted); font-size:12px; }
+  h2 { font-size:22px; margin:36px 0 12px; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th, td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+  .finding { border:1px solid var(--line); border-left:3px solid var(--sev); border-radius:12px; padding:16px 18px; margin:12px 0; background:rgba(255,255,255,.025); }
+  .finding header { display:flex; align-items:baseline; gap:10px; }
+  .finding h3 { font-size:15.5px; margin:0; }
+  .sev { font-size:10px; font-weight:700; letter-spacing:.08em; color:var(--sev); background:color-mix(in srgb, var(--sev) 16%, transparent); padding:2px 7px; border-radius:5px; }
+  .meta { color:var(--muted); font-size:12px; margin:6px 0 8px; }
+  .evidence, .code { background:#04070d; border:1px solid var(--line); border-radius:9px; padding:12px; overflow:auto; font:12px/1.6 ui-monospace, Consolas, monospace; color:#a9b8d8; }
+  .fix { margin:8px 0 0; font-size:13.5px; }
+  .integrity { border:1px dashed rgba(52,211,153,.4); background:rgba(52,211,153,.06); border-radius:12px; padding:16px; font-size:13px; }
+  .integrity code { word-break:break-all; }
+  ul { color:var(--muted); }
+  footer { margin-top:44px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:16px; }
+  @media print {
+    body { background:#fff; color:#111; }
+    .page { max-width:none; padding:0; }
+    header.cover, .finding, .integrity, .stat { background:#fff; border-color:#ccc; }
+    .sub, .meta, .stat span, ul, footer { color:#444; }
+    h1, h2, h3, b, .grade b { color:#111 !important; }
+    .evidence, .code { background:#f6f6f6; color:#111; border-color:#ddd; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="cover">
+    <div class="brand">AgentProof.cloud · Security Audit</div>
+    <h1>Agent / MCP 安全审计报告</h1>
+    <p class="sub">客户：Acme Support Agent · 出具方：AgentProof.cloud · 2026-11-11T12:48:48Z</p>
+    <div class="cover-grid">
+      <div class="grade"><div><b>F</b><small>风险评级</small></div></div>
+      <div class="stats">
+        <div class="stat"><b>6</b><span>致命</span></div>
+        <div class="stat"><b>8</b><span>高危</span></div>
+        <div class="stat"><b>4</b><span>中危</span></div>
+        <div class="stat"><b>0</b><span>低危</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <h2>扫描范围与方法</h2>
+    <p>本报告基于静态分析：只读取被扫描文件，不执行目标代码、不安装依赖、不发起网络请求。
+    证据中的密钥与口令已在渲染前脱敏。未扫描到的文件不在结论范围内。</p>
+    <table><thead><tr><th>文件</th><th>类型</th><th>评级</th><th>命中</th></tr></thead>
+    <tbody><tr><td><code>sample-dangerous-mcp.json</code></td><td>mcp</td><td><b>F</b></td><td>8</td></tr><tr><td><code>sample-python-agent.py</code></td><td>python</td><td><b>F</b></td><td>10</td></tr></tbody></table>
+  </section>
+
+  
+
+  <section>
+    <h2>发现（18 项）</h2>
+    
+            <article class="finding" style="--sev:#f87171">
+              <header><span class="sev">CRITICAL</span>
+              <h3>1. 工具调用被自动批准，没有任何人工或策略确认</h3></header>
+              <p class="meta">规则 <code>MCP-02</code> · 来源 <code>sample-dangerous-mcp.json</code></p>
+              <p>[filesystem] autoApprove/alwaysAllow 对全部工具放行，等于把 agent 的决策权直接交给模型输出。</p>
+              <pre class="evidence">true</pre>
+              <p class="fix"><b>修复：</b>关闭全量自动批准；改为按工具白名单 + 危险动作强制审批。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#f87171">
+              <header><span class="sev">CRITICAL</span>
+              <h3>2. MCP 服务以 shell 解释器 -c 方式启动，等价于任意命令执行</h3></header>
+              <p class="meta">规则 <code>MCP-03</code> · 来源 <code>sample-dangerous-mcp.json</code></p>
+              <p>[shell] 命令字符串由模型或配置拼接，一旦可被影响就是远程命令执行。</p>
+              <pre class="evidence">bash -c npx -y mcp-server-shell@latest sk-***redacted*** 0</pre>
+              <p class="fix"><b>修复：</b>改为可执行文件直接启动；确需脚本时固定参数、禁止拼接外部输入。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#f87171">
+              <header><span class="sev">CRITICAL</span>
+              <h3>3. 凭据以明文形式写在 mcp.json 的 env/headers 中</h3></header>
+              <p class="meta">规则 <code>MCP-05</code> · 来源 <code>sample-dangerous-mcp.json</code></p>
+              <p>[shell] 环境变量 OPENAI_API_KEY 直接包含真实凭据；该文件通常随项目同步、备份、进日志。</p>
+              <pre class="evidence">&quot;OPENAI_API_KEY&quot;: &quot;sk-***redacted***&quot;</pre>
+              <p class="fix"><b>修复：</b>改用运行时注入的环境变量或密钥管理服务；mcp.json 中只保留 ${KEY} 占位符。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#f87171">
+              <header><span class="sev">CRITICAL</span>
+              <h3>4. 文件系统服务暴露了过宽的根目录</h3></header>
+              <p class="meta">规则 <code>MCP-07</code> · 来源 <code>sample-dangerous-mcp.json</code></p>
+              <p>[filesystem] 根目录 / 让 agent 可读写本机任意路径（含凭据、代码、系统文件）。</p>
+              <pre class="evidence">/</pre>
+              <p class="fix"><b>修复：</b>把根目录收敛到项目内子目录，并配置只读 + 路径前缀校验。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#f87171">
+              <header><span class="sev">CRITICAL</span>
+              <h3>5. 数据库连接串内嵌明文口令</h3></header>
+              <p class="meta">规则 <code>MCP-10</code> · 来源 <code>sample-dangerous-mcp.json</code></p>
+              <p>[prod-db] agent 一旦能读该配置，就能直连生产库；写权限更会绕过业务规则。</p>
+              <pre class="evidence">postgres://ops_admin:***@db.prod.internal:5432/billing</pre>
+              <p class="fix"><b>修复：</b>使用 IAM/短期令牌或仅授予只读账号；口令放密钥服务，不放配置。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#f87171">
+              <header><span class="sev">CRITICAL</span>
+              <h3>6. 源码中硬编码了真实凭据</h3></header>
+              <p class="meta">规则 <code>PY-05</code> · 来源 <code>sample-python-agent.py</code></p>
+              <p>密钥进入源码就会进入 git 历史、日志与备份；轮换成本远高于一次性修复。</p>
+              <pre class="evidence">L28: sk-***redacted***</pre>
+              <p class="fix"><b>修复：</b>立即轮换该密钥，改用环境变量或密钥管理服务；加入 secret 扫描门禁。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fb923c">
+              <header><span class="sev">HIGH</span>
+              <h3>7. 远程 MCP 使用明文 HTTP 传输</h3></header>
+              <p class="meta">规则 <code>MCP-09</code> · 来源 <code>sample-dangerous-mcp.json</code></p>
+              <p>[remote-kb] 工具描述与返回内容可被中间人篡改，进而影响 agent 决策（工具投毒）。</p>
+              <pre class="evidence">http://kb.internal:8080/mcp</pre>
+              <p class="fix"><b>修复：</b>改用 HTTPS 并校验证书；对远程 MCP 增加响应签名/固定哈希。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fb923c">
+              <header><span class="sev">HIGH</span>
+              <h3>8. 关闭了 Node 的 TLS 证书校验</h3></header>
+              <p class="meta">规则 <code>MCP-11</code> · 来源 <code>sample-dangerous-mcp.json</code></p>
+              <p>[shell] NODE_TLS_REJECT_UNAUTHORIZED=0 使该进程所有 HTTPS 请求都不再验签。</p>
+              <pre class="evidence">NODE_TLS_REJECT_UNAUTHORIZED=0</pre>
+              <p class="fix"><b>修复：</b>移除该变量；如需自签证书，显式传入 CA 而不是关闭校验。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fb923c">
+              <header><span class="sev">HIGH</span>
+              <h3>9. subprocess 以 shell=True 执行命令</h3></header>
+              <p class="meta">规则 <code>PY-01</code> · 来源 <code>sample-python-agent.py</code></p>
+              <p>命令字符串交给 shell 解释，任何拼接进命令的模型输出都可以逃逸成任意命令。</p>
+              <pre class="evidence">L8: subprocess.run(command, shell=True</pre>
+              <p class="fix"><b>修复：</b>改为 shell=False + 参数列表；确需 shell 时使用固定命令白名单。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fb923c">
+              <header><span class="sev">HIGH</span>
+              <h3>10. 动态执行模型/用户可控的代码</h3></header>
+              <p class="meta">规则 <code>PY-03</code> · 来源 <code>sample-python-agent.py</code></p>
+              <p>eval/exec 会把字符串当代码运行，等于把执行权交给输入方。</p>
+              <pre class="evidence">L12: eval(</pre>
+              <p class="fix"><b>修复：</b>改为显式解析（ast.literal_eval 或 JSON schema），禁止执行字符串代码。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fb923c">
+              <header><span class="sev">HIGH</span>
+              <h3>11. 关闭了 HTTPS 证书校验</h3></header>
+              <p class="meta">规则 <code>PY-06</code> · 来源 <code>sample-python-agent.py</code></p>
+              <p>关闭校验后，工具返回内容可被中间人替换，进而篡改 agent 行为。</p>
+              <pre class="evidence">L18: verify=False</pre>
+              <p class="fix"><b>修复：</b>恢复证书校验；自建 CA 时显式传入 CA 包而非关闭校验。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fb923c">
+              <header><span class="sev">HIGH</span>
+              <h3>12. SQL 由字符串拼接/f-string 构造</h3></header>
+              <p class="meta">规则 <code>PY-08</code> · 来源 <code>sample-python-agent.py</code></p>
+              <p>用户或模型可控的输入进入 SQL，存在注入与越权读写风险。</p>
+              <pre class="evidence">L20: cursor.execute(f&quot;UPDATE orders SET refunded=1 WHERE id={order_id}</pre>
+              <p class="fix"><b>修复：</b>改用参数化查询；数据库账号最小权限且只读为主。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fb923c">
+              <header><span class="sev">HIGH</span>
+              <h3>13. 发现 4 个工具定义，但没有接入策略门</h3></header>
+              <p class="meta">规则 <code>PY-16</code> · 来源 <code>sample-python-agent.py</code></p>
+              <p>工具函数直接暴露给模型，动作执行前没有 allow/deny 判定，也没有签名回执。</p>
+              <pre class="evidence">tool decorators: 4, policy references: 0</pre>
+              <p class="fix"><b>修复：</b>在工具调用入口接入 policy gate：默认拒绝，命中规则且所有前置条件满足才放行，并签发回执。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fb923c">
+              <header><span class="sev">HIGH</span>
+              <h3>14. 存在命令执行类工具函数</h3></header>
+              <p class="meta">规则 <code>PY-17</code> · 来源 <code>sample-python-agent.py</code></p>
+              <p>该函数把 agent 的意图直接转成系统命令，需要单独的最小权限与审批策略。</p>
+              <pre class="evidence">def run_shell(command: str)</pre>
+              <p class="fix"><b>修复：</b>命令执行工具只允许白名单命令，禁止透传模型生成的任意字符串。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fbbf24">
+              <header><span class="sev">MEDIUM</span>
+              <h3>15. 远程 MCP 未携带认证头</h3></header>
+              <p class="meta">规则 <code>MCP-13</code> · 来源 <code>sample-dangerous-mcp.json</code></p>
+              <p>[remote-kb] 远程 MCP 若无鉴权，任何能访问该地址的人都可以替换工具行为。</p>
+              <pre class="evidence">http://kb.internal:8080/mcp</pre>
+              <p class="fix"><b>修复：</b>为远程 MCP 增加 Authorization 头或 mTLS，并校验服务端固定公钥。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fbbf24">
+              <header><span class="sev">MEDIUM</span>
+              <h3>16. 以明文 HTTP 调用外部接口</h3></header>
+              <p class="meta">规则 <code>PY-07</code> · 来源 <code>sample-python-agent.py</code></p>
+              <p>请求与响应都可被窃听或篡改。</p>
+              <pre class="evidence">L18: requests.post(&quot;http://</pre>
+              <p class="fix"><b>修复：</b>改用 HTTPS，并对返回内容做来源与格式校验。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fbbf24">
+              <header><span class="sev">MEDIUM</span>
+              <h3>17. 代码可以删除文件或目录</h3></header>
+              <p class="meta">规则 <code>PY-09</code> · 来源 <code>sample-python-agent.py</code></p>
+              <p>删除动作若作用于用户可控路径，可能造成不可逆数据丢失。</p>
+              <pre class="evidence">L21: os.remove(</pre>
+              <p class="fix"><b>修复：</b>限制删除根目录到工作区，先移动到回收站/软删除并留审计记录。</p>
+            </article>
+            
+            <article class="finding" style="--sev:#fbbf24">
+              <header><span class="sev">MEDIUM</span>
+              <h3>18. CORS 允许任意来源</h3></header>
+              <p class="meta">规则 <code>PY-11</code> · 来源 <code>sample-python-agent.py</code></p>
+              <p>任意网页都可带着用户会话调用该服务。</p>
+              <pre class="evidence">L30: allow_origins=[&quot;*&quot;]</pre>
+              <p class="fix"><b>修复：</b>收敛到明确的前端域名列表，并配合 CSRF 防护。</p>
+            </article>
+            
+  </section>
+
+  <section><h2>可直接落地的默认拒绝策略</h2><pre class="code"># Generated by AgentProof.cloud scanner
+# source-kind: mcp
+# subject: &quot;Acme Support Agent:sample-dangerous-mcp.json&quot;
+# policy: deny by default — no rule match means DENY
+version: 1
+subject: &quot;Acme Support Agent:sample-dangerous-mcp.json&quot;
+mode: enforce
+
+capabilities:
+  - name: mcp.filesystem
+  - name: mcp.prod.db
+  - name: mcp.remote.kb
+  - name: mcp.shell
+
+rules:
+  - id: allow-readonly-tools
+    action: &quot;tool.read.*&quot;
+    effect: allow
+    reason: Only explicitly read-only tools are pre-approved
+    conditions:
+      max_input_bytes: 32768
+  - id: deny-mcp-filesystem-x
+    action: &quot;mcp.filesystem.*&quot;
+    effect: deny
+    reason: 工具调用被自动批准，没有任何人工或策略确认
+  - id: deny-mcp-filesystem-fs-write
+    action: mcp.filesystem.fs.write
+    effect: deny
+    reason: 文件系统服务暴露了过宽的根目录
+  - id: deny-mcp-shell-exec
+    action: mcp.shell.exec
+    effect: deny
+    reason: MCP 服务以 shell 解释器 -c 方式启动，等价于任意命令执行
+  - id: deny-mcp-x-secret-read
+    action: &quot;mcp.*.secret.read&quot;
+    effect: deny
+    reason: 凭据以明文形式写在 mcp.json 的 env/headers 中
+  - id: deny-mcp-shell-remote
+    action: mcp.shell.remote
+    effect: deny
+    reason: 关闭了 Node 的 TLS 证书校验
+  - id: deny-mcp-prod-db-db-write
+    action: mcp.prod.db.db.write
+    effect: deny
+    reason: 数据库连接串内嵌明文口令
+  - id: deny-mcp-remote-kb-remote
+    action: mcp.remote.kb.remote
+    effect: deny
+    reason: 远程 MCP 使用明文 HTTP 传输
+
+  - id: deny-default
+    action: &quot;*&quot;
+    effect: deny
+    reason: Default deny — no matching allow rule
+
+audit:
+  ledger: hash-chain+ed25519
+  sign_before_action: true
+  seal_interval: 100
+  require_receipt: true
+</pre></section>
+
+  <section>
+    <h2>报告完整性</h2>
+    <div class="integrity">
+      <p>报告摘要（SHA-256）：<br><code>cc05d611e0bc0828f39aa888c775b79bd951077006e8f4589a2da2f42f052b48</code></p>
+      <p>Ed25519 签名：<br><code>73be060d498b633a2e6b1cdc9a8483ae730c87afd7da3e57c3b2414192f1f2957ae98bae813d2f33077b94d4576171c1dc2be1146050636ae1c45389a6951a01</code></p>
+      <p>公钥指纹：<br><code>880cf9cef90ca243fb8a9e06aacb98758151fa17410085ed5b611aa0e6129532</code></p>
+      <p>公钥：<br><code style="white-space:pre-wrap">-----BEGIN PUBLIC KEY-----
+MCowBQYDK2VwAyEAozclus6Fgqu725uQJ3fGlnwjL5FhJL5d0/mYMgNj38I=
+-----END PUBLIC KEY-----</code></p>
+      <p>校验：<code>python tools/audit_report.py verify --report report.json --public-key public-key.pem</code></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>边界</h2>
+    <ul>
+      <li>本报告是静态风险线索与修复建议，不是漏洞利用证明、合规认证或法律意见。</li>
+      <li>只覆盖被扫描到的文件；运行时行为与被绕过路径不在结论内。</li>
+      <li>复测请以本报告摘要作为对照基线；摘要或签名不一致即视为报告被改动。</li>
+    </ul>
+  </section>
+
+  <footer>AgentProof.cloud · 证据，而不是声称 · 本报告由静态扫描 + 人工复核生成</footer>
+</div>
+</body>
+</html>

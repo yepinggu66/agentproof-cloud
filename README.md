@@ -153,6 +153,28 @@ an honest pre-publish checklist) live in [docs/launch-copy.md](docs/launch-copy.
 They are marked **pre-publish / NO-GO** until the public URL is live and the
 checklist is green.
 
+## Commercial model
+
+The plan of record is **services first, SaaS later**: sell signed, client-ready
+Agent/MCP security audits ($490 Quick / $1,900 Deep), use the free scanner and
+the MIT repo as the funnel, and only add subscriptions once paying customers
+exist. See [docs/commercial-plan.md](docs/commercial-plan.md) for pricing, unit
+economics, channels and the 30/60/90 plan.
+
+`tools/audit_report.py` produces the sellable deliverable — a self-contained
+HTML/Markdown/JSON report with an Ed25519 signature over the findings:
+
+```bash
+python tools/audit_report.py --repo path/to/agent-project \
+    --client "Acme Support" --out audit/
+python tools/audit_report.py verify --report audit/report.json \
+    --public-key audit/public-key.pem
+```
+
+A full example lives in [docs/sample-audit/](docs/sample-audit/), and audit
+requests are accepted through the GitHub issue template
+`.github/ISSUE_TEMPLATE/audit-request.yml`.
+
 ## Deploy
 
 ### Railway (site + API + volume)
