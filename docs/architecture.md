@@ -39,12 +39,14 @@ each layer does, where the trust boundaries are, and what is still missing.
 | `agentproof` CLI / Python API | developers embedding the gate or generating evidence offline | `src/agentproof/` |
 | AgentProof.cloud web service | self-serve scanning, tenant onboarding, console, exports | `server/` + `site/` |
 
-The commercial service intentionally calls its own scanner (`server/scan.py`)
-and shares only the cryptographic primitives through `server/signing.py` and
-`server/ledger.py`. The library keeps an independent scanner
-(`src/agentproof/scanner/`). **Consolidating the two scanners is deliberate
-follow-up work** — the browser port in `site/assets/scanner.js` is already kept
-byte-identical to `server/scan.py` by `tests/test_scanner_parity.py`.
+**Scanner architecture (unified).** There is one canonical document scanner,
+`src/agentproof/scanner/engine.py`. The FastAPI service (`server/scan.py` is now
+a compatibility shim), the browser port (`site/assets/scanner.js`, parity-tested
+byte-for-byte), the library entry point `agentproof.scanner.scan_document`, and
+the audit/lead-gen tools all call it. The CLI workspace scan
+(`run_workspace_scan`) delegates MCP finding detection to the same engine; its
+Python AST layer adds function-level discovery (line numbers, action names) on
+top and is a separate analysis depth, not a second copy of the MCP rules.
 
 ## Trust model
 
@@ -70,7 +72,7 @@ byte-identical to `server/scan.py` by `tests/test_scanner_parity.py`.
 **Exists and tested (272 tests):**
 - core chain / receipt / policy / canonical JSON / verification
 - runtime gate, cloud notary, storage, billing webhook verification
-- MCP + Python scanner (two implementations + browser port, parity-tested)
+- one canonical document scanner (engine) + AST workspace layer, browser parity-tested
 - commercial API: tenants, quotas, dual-signed ledger, exports, audit reports
 - signed audit report generator (`tools/audit_report.py`)
 
@@ -80,7 +82,9 @@ byte-identical to `server/scan.py` by `tests/test_scanner_parity.py`.
 3. **CI**: `.github/workflows` cannot be pushed with the current token (needs
    `workflow` scope); the v0.2.0 workflow is archived at
    `deploy/v0.2.0/ci-and-publish.yml`.
-4. **Scanner consolidation** (see above) and a single release version story.
+4. **Scanner: Python AST merge** — the text engine and the AST layer still have
+   overlapping Python checks; folding the AST-only rules (destructive SQL,
+   function-level discovery) into the engine is the remaining cleanup.
 5. **Multi-tenant storage at scale**: SQLite single-process is fine for demos,
    not for a paid multi-tenant service.
 6. **Brand, customers, case studies**: an acquirer buys traction and a team as

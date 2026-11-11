@@ -1,13 +1,20 @@
-"""MCP configuration scanner for Shadow AI and over-privileged MCP servers."""
+"""MCP configuration scanner for Shadow AI and over-privileged MCP servers.
+
+Discovery (which config files exist, which servers/tools they declare) stays
+here because the workspace report needs that inventory for starter-policy
+generation. **Finding detection is delegated to the one canonical engine**
+(:mod:`agentproof.scanner.engine`), so the CLI, the web API and the browser
+port cannot drift apart in their MCP rules.
+"""
 
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 from typing import Any
 
 from ..core._textio import TextDecodeError, read_text
+from . import engine
 
 MCP_CONFIG_PATTERNS = (
     "mcp.json",
@@ -15,20 +22,22 @@ MCP_CONFIG_PATTERNS = (
     "claude_desktop_config.json",
 )
 
-DANGEROUS_COMMANDS = {
-    "bash",
-    "sh",
-    "zsh",
-    "powershell",
-    "pwsh",
-    "cmd",
-    "cmd.exe",
+# Legacy workspace-report rule ids kept for API compatibility. The canonical
+# engine emits MCP-NN ids; this maps them onto the historical MCP-00N names.
+LEGACY_RULE_IDS = {
+    "MCP-12": "MCP-001",  # unpinned npx -y
+    "MCP-03": "MCP-002",  # shell interpreter
+    "MCP-04": "MCP-002",  # shell/command server
+    "MCP-07": "MCP-003",  # broad filesystem root
+    "MCP-05": "MCP-004",  # plaintext credential
 }
 
-SECRET_KEY_RE = re.compile(
-    r"(API_KEY|SECRET|TOKEN|PASSWORD|PRIVATE_KEY|ACCESS_KEY|AUTH)",
-    re.IGNORECASE,
-)
+SEVERITY_MAP = {
+    "critical": "CRITICAL",
+    "high": "HIGH",
+    "medium": "MEDIUM",
+    "low": "LOW",
+}
 
 
 def is_mcp_config_file(path: Path) -> bool:
@@ -40,13 +49,18 @@ def is_mcp_config_file(path: Path) -> bool:
     return False
 
 
-def scan_mcp_configs(root: Path) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """Scan ``root`` for MCP server definitions and return (findings, discovered_tools).
+def _server_from_detail(detail: str) -> str:
+    """Engine findings prefix their detail with ``[server]``."""
+    if detail.startswith("[") and "]" in detail:
+        return detail[1 : detail.index("]")]
+    return "mcp.json"
 
-    Returns raw dicts converted into :class:`Finding` objects by ``report.py``.
-    """
+
+def scan_mcp_configs(root: Path) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Return ``(findings, discovered_tools)`` for every MCP config under root."""
     findings: list[dict[str, Any]] = []
     discovered_tools: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
 
     if root.is_file():
         candidates = [root] if is_mcp_config_file(root) else []
@@ -67,7 +81,6 @@ def scan_mcp_configs(root: Path) -> tuple[list[dict[str, Any]], list[dict[str, A
             data = json.loads(text)
         except (TextDecodeError, ValueError, OSError):
             continue
-
         if not isinstance(data, dict):
             continue
 
@@ -79,12 +92,8 @@ def scan_mcp_configs(root: Path) -> tuple[list[dict[str, Any]], list[dict[str, A
         for server_name, spec in servers.items():
             if not isinstance(spec, dict):
                 continue
-
             action_name = f"mcp.{server_name}"
             cmd = str(spec.get("command") or "").strip()
-            args = [str(a) for a in (spec.get("args") or []) if a is not None]
-            env = spec.get("env") if isinstance(spec.get("env"), dict) else {}
-
             discovered_tools.append(
                 {
                     "name": action_name,
@@ -95,105 +104,30 @@ def scan_mcp_configs(root: Path) -> tuple[list[dict[str, Any]], list[dict[str, A
                 }
             )
 
-            # 1. Check for unpinned npx -y / uvx remote code execution
-            cmd_base = Path(cmd).name.lower()
-            if cmd_base in ("npx", "npx.cmd") and ("-y" in args or "--yes" in args):
-                pkg = next((a for a in args if not a.startswith("-")), "<unknown>")
-                if "@" not in pkg.lstrip("@"):
-                    findings.append(
-                        {
-                            "rule_id": "MCP-001",
-                            "severity": "HIGH",
-                            "category": "shadow_mcp",
-                            "location": f"{rel_path}:{server_name}",
-                            "title": f"Unpinned auto-install MCP server '{server_name}'",
-                            "detail": (
-                                f"Server '{server_name}' runs `{cmd} {' '.join(args)}` "
-                                "without pinning an immutable version or digest, "
-                                "exposing the agent to supply-chain poisoning."
-                            ),
-                            "remediation": (
-                                f"Pin `{pkg}` to an exact version and gate `mcp.{server_name}.*` "
-                                "in policy.yaml."
-                            ),
-                            "action_name": action_name,
-                        }
-                    )
+        try:
+            result = engine.scan_mcp(text, subject=str(config_path))
+        except engine.ScanInputError:
+            continue
 
-            # 2. Check for raw shell execution MCP servers
-            if cmd_base in DANGEROUS_COMMANDS or any(
-                "shell" in a.lower() or "exec" in a.lower() for a in [server_name, *args]
-            ):
-                findings.append(
-                    {
-                        "rule_id": "MCP-002",
-                        "severity": "CRITICAL",
-                        "category": "shadow_mcp",
-                        "location": f"{rel_path}:{server_name}",
-                        "title": f"Unrestricted shell/command MCP server '{server_name}'",
-                        "detail": (
-                            f"MCP server '{server_name}' exposes shell or command execution "
-                            f"(`{cmd}`) without an agentproof pre-execution receipt gate."
-                        ),
-                        "remediation": (
-                            f"Add rule `id: halt-{server_name}` with `effect: halt` or "
-                            "`effect: deny` in policy.yaml."
-                        ),
-                        "action_name": action_name,
-                    }
-                )
-
-            # 3. Check for broad filesystem access
-            for arg in args:
-                norm_arg = arg.strip()
-                if norm_arg in ("/", "C:\\", "C:/", "..", "~"):
-                    findings.append(
-                        {
-                            "rule_id": "MCP-003",
-                            "severity": "CRITICAL",
-                            "category": "shadow_mcp",
-                            "location": f"{rel_path}:{server_name}",
-                            "title": f"Root/home filesystem mounted into MCP server '{server_name}'",
-                            "detail": (
-                                f"Argument `{norm_arg}` grants broad host filesystem access "
-                                f"to MCP server '{server_name}'."
-                            ),
-                            "remediation": (
-                                "Restrict filesystem MCP server arguments to an isolated "
-                                "workspace directory and enforce max_input_bytes in policy.yaml."
-                            ),
-                            "action_name": action_name,
-                        }
-                    )
-
-            # 4. Check for hardcoded plaintext credentials in env
-            for env_key, env_val in env.items():
-                val_str = str(env_val or "").strip()
-                if (
-                    SECRET_KEY_RE.search(str(env_key))
-                    and val_str
-                    and not val_str.startswith("${")
-                    and not val_str.startswith("$")
-                    and val_str != "<REDACTED>"
-                ):
-                    findings.append(
-                        {
-                            "rule_id": "MCP-004",
-                            "severity": "HIGH",
-                            "category": "shadow_mcp",
-                            "location": f"{rel_path}:{server_name}.env.{env_key}",
-                            "title": f"Hardcoded credential `{env_key}` in MCP config",
-                            "detail": (
-                                f"Plaintext secret found in `{rel_path}` under "
-                                f"server '{server_name}' environment variable `{env_key}`."
-                            ),
-                            "remediation": (
-                                "Inject secrets via environment references (`${ENV_VAR}`) "
-                                "and scope tool access with `required_scopes` in policy.yaml."
-                            ),
-                            "action_name": action_name,
-                        }
-                    )
+        for finding in result.findings:
+            server_name = _server_from_detail(finding.detail)
+            rule_id = LEGACY_RULE_IDS.get(finding.id, finding.id)
+            key = (rule_id, server_name)
+            if key in seen:
+                continue
+            seen.add(key)
+            findings.append(
+                {
+                    "rule_id": rule_id,
+                    "severity": SEVERITY_MAP.get(finding.severity, "MEDIUM"),
+                    "category": "shadow_mcp",
+                    "location": f"{rel_path}:{server_name}",
+                    "title": finding.title,
+                    "detail": finding.detail,
+                    "remediation": finding.remediation,
+                    "action_name": f"mcp.{server_name}" if server_name != "mcp.json" else "",
+                }
+            )
 
     return findings, discovered_tools
 

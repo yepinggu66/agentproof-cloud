@@ -26,13 +26,25 @@ from .report import (
     generate_starter_policy,
     run_workspace_scan,
 )
+from .engine import (
+    ScanInputError,
+    ScanResult,
+    scan_document,
+    scan_mcp_document,
+    scan_python_document,
+)
 
 __all__ = [
     "Finding",
     "ScanReport",
     "Severity",
+    "ScanInputError",
+    "ScanResult",
     "generate_starter_policy",
     "run_workspace_scan",
+    "scan_document",
+    "scan_mcp_document",
+    "scan_python_document",
     "scan_mcp_configs",
     "scan_python_files",
 ]
