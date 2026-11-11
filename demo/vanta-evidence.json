@@ -1,0 +1,74 @@
+{
+  "schema_version": "vanta.custom_evidence.v1",
+  "integration_source": "agentproof",
+  "resource_type": "ai_agent_cryptographic_control_chain",
+  "external_id": "agentproof:43dc345ae9220d51",
+  "display_name": "AgentProof Pre-Action Ledger — acme-support-agent",
+  "generated_at": "2026-11-11T05:05:11Z",
+  "status": "PASS",
+  "controls_satisfied": [
+    "ISO42001-A.6.2.8",
+    "ISO42001-A.8.3",
+    "SOC2-CC6.1",
+    "SOC2-CC7.2",
+    "EU-AI-ACT-ART26",
+    "AIUC-1"
+  ],
+  "insurability_scorecard": {
+    "chain_id": "43dc345ae9220d51",
+    "subject": "acme-support-agent",
+    "insurability_score": 90,
+    "underwriting_tier": "TIER_1_PREFERRED",
+    "premium_adjustment": "-20% Preferred Underwriting Discount Eligible",
+    "metrics": {
+      "total_receipts": 3,
+      "integrity_ok": true,
+      "chain_sealed": true,
+      "notarized_count": 2,
+      "notarized_ratio": 0.6667,
+      "blocked_actions": 1,
+      "policy_coverage_ratio": 1.0
+    },
+    "strengths": [
+      "100% pre-execution Ed25519 signature & hash-chain integrity verified.",
+      "100% of decisions bound to immutable policy digests with explicit audit reasons.",
+      "Fail-closed gate actively intercepted 1 unauthorized/halted action(s).",
+      "Chain is locally sealed with an anchor hash."
+    ],
+    "remediations": [
+      "Upgrade to AgentProof Cloud Pro/Enterprise for real-time third-party Witness counter-signing (+10 pts)."
+    ]
+  },
+  "evidence_summary": {
+    "total_decisions": 3,
+    "by_decision": {
+      "ALLOW": 2,
+      "DENY": 1
+    },
+    "by_action": {
+      "db.write": 1,
+      "kb.search": 1,
+      "order.refund": 1
+    },
+    "denied_actions": [
+      "db.write"
+    ],
+    "halted_actions": [],
+    "distinct_actors": [
+      "support-agent"
+    ],
+    "distinct_policies": [
+      "acme-support-v3"
+    ],
+    "chain_sealed": true,
+    "records_with_human_reason": 3
+  },
+  "cryptographic_proof": {
+    "chain_id": "43dc345ae9220d51",
+    "public_key_ed25519": "b0d1d75e9f5842d33d87cd3dc632212c97918ad8c469ed54dae8e59491342d5f",
+    "records_verified": 3,
+    "final_hash": "fd306b0af161898368370ad13244cbb79b8fb9f2cf19b633f3080921c18084c4",
+    "sealed": true,
+    "problems": []
+  }
+}

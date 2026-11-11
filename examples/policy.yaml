@@ -1,0 +1,35 @@
+version: 1
+subject: acme-support-agent
+policy_id: acme-support-v3
+
+capabilities:
+  - name: kb.search
+    description: Read-only search over the knowledge base
+  - name: order.refund
+    description: Refund an order within the pre-approved limit
+
+rules:
+  - id: allow-kb-search
+    action: kb.search
+    effect: allow
+    reason: Read-only KB access is pre-approved for all support agents
+    conditions:
+      max_input_bytes: 65536
+
+  - id: allow-small-refund
+    action: order.refund
+    effect: allow
+    reason: Refunds under the limit are pre-approved
+    conditions:
+      max_input_bytes: 4096
+      required_scopes: ["orders:write"]
+
+  - id: deny-db-write
+    action: db.write
+    effect: deny
+    reason: Writes to the customer database are not permitted for support agents
+
+  - id: deny-default
+    action: "*"
+    effect: deny
+    reason: Default deny. Only explicitly listed actions are permitted.

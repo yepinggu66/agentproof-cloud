@@ -1,0 +1,64 @@
+{
+  "agents": [
+    {
+      "actions": [
+        "kb.search",
+        "db.write"
+      ],
+      "event_count": 6,
+      "name": "support-agent",
+      "tools": [
+        "kb.search",
+        "db.write"
+      ]
+    }
+  ],
+  "format": "agentproof-aibom-v1",
+  "generated_at": "2026-10-26T17:42:24Z",
+  "models": [
+    {
+      "agents": [
+        "support-agent"
+      ],
+      "call_count": 1,
+      "name": "unknown"
+    }
+  ],
+  "source_trace": "trace.jsonl",
+  "subject": "acme-support-agent",
+  "summary": {
+    "agent_count": 1,
+    "error_events": 1,
+    "model_count": 1,
+    "tool_count": 2,
+    "total_events": 6
+  },
+  "tools": [
+    {
+      "agents": [
+        "support-agent"
+      ],
+      "call_count": 1,
+      "input_digests": [
+        "0b732943ed57a9639abd0bc110d32719fdbf7f0ff9c85b1516ac8999b50effb5"
+      ],
+      "name": "db.write",
+      "sample_inputs": {
+        "sql": "UPDATE customers SET status='refunded' WHERE id=8812"
+      }
+    },
+    {
+      "agents": [
+        "support-agent"
+      ],
+      "call_count": 1,
+      "input_digests": [
+        "7956f8b7732b9637434fb55297f7b6e030057a3a6e1a0b15bef83abc79be7f91"
+      ],
+      "name": "kb.search",
+      "sample_inputs": {
+        "q": "refund policy"
+      }
+    }
+  ]
+}

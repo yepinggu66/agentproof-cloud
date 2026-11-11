@@ -13,6 +13,10 @@
   publish = "site"
   command = "echo 'no build step: site/ is already static'"
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 [[headers]]
   for = "/*"
   [headers.values]

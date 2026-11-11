@@ -1,0 +1,6 @@
+{"type":"agent_start","agent":"support-agent"}
+{"type":"llm_call","agent":"support-agent","outputs":{"content":"Let me look this up"}}
+{"type":"tool_call","agent":"support-agent","name":"kb.search","input":{"q":"refund policy"}}
+{"type":"tool_result","agent":"support-agent","name":"kb.search","outputs":{"hits":3}}
+{"type":"tool_call","agent":"support-agent","name":"db.write","input":{"sql":"UPDATE customers SET status='refunded' WHERE id=8812"}}
+{"type":"error","agent":"support-agent","name":"db.write","error":"permission denied for role support_agent"}

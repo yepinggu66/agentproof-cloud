@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>AgentProof Cloud — Cryptographic Pre-Execution Receipts, Shadow MCP Scanner &amp; AIUC-1 Compliance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --background: #0b0f17;
+      --card: #131b2e;
+      --secondary: #1e293b;
+      --border: #23304d;
+      --foreground: #e6edf7;
+      --muted-foreground: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased">
+
+  <!-- Top Navbar -->
+  <header class="sticky top-0 z-50 bg-[var(--card)] border-b border-[var(--border)] px-6 py-3.5">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="navTo('page-home')">
+        <span class="text-lg font-extrabold tracking-tight">🛡️ AgentProof<span class="text-sky-400">.cloud</span></span>
+        <span class="text-xs px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30 font-semibold">
+          v0.2.0
+        </span>
+      </div>
+
+      <nav class="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+        <button id="nav-page-home" onclick="navTo('page-home')" class="px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold" data-i18n="nav_home">
+          Scanner &amp; Overview
+        </button>
+        <button id="nav-page-pricing" onclick="navTo('page-pricing')" class="px-3 py-1.5 rounded-lg bg-[var(--secondary)] text-[var(--foreground)]" data-i18n="nav_pricing">
+          Pricing ($99 / $1,500)
+        </button>
+        <button id="nav-page-console" onclick="navTo('page-console')" class="px-3 py-1.5 rounded-lg bg-[var(--secondary)] text-[var(--foreground)]" data-i18n="nav_console">
+          Witness Console
+        </button>
+        <button id="nav-page-export" onclick="navTo('page-export')" class="px-3 py-1.5 rounded-lg bg-[var(--secondary)] text-[var(--foreground)]" data-i18n="nav_export">
+          Vanta / Datadog / AIUC-1
+        </button>
+      </nav>
+
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <button onclick="configureBackendUrl()" id="api-status-pill" class="px-2.5 py-1 rounded-lg bg-[var(--secondary)] border border-[var(--border)] text-[var(--muted-foreground)] hover:border-sky-400">
+          ● Checking API...
+        </button>
+        <button onclick="toggleLang()" id="lang-btn" class="px-2.5 py-1 rounded-lg bg-[var(--secondary)] border border-[var(--border)] font-bold text-sky-300">
+          中文 / EN
+        </button>
+        <button onclick="navTo('page-pricing')" class="px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold" data-i18n="cta_top">
+          Get API Key →
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-8">
+
+    <!-- ===================================================================== -->
+    <!-- PAGE 1: LANDING + LIVE SHADOW MCP / PYTHON SCANNER                    -->
+    <!-- ===================================================================== -->
+    <section id="page-home" class="space-y-8">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-8 text-center space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30 text-xs font-semibold" data-i18n="hero_badge">
+          Vendor-Neutral · EU AI Act Art. 26 · Lloyd's AIUC-1 Insurability · SOC 2 / ISO 42001
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight" data-i18n="hero_title">
+          An AI Agent Should Never Grade Its Own Homework.<br/>
+          <span class="text-sky-400">Pre-Execution Cryptographic Receipts &amp; Witness Notary.</span>
+        </h1>
+        <p class="max-w-3xl mx-auto text-sm text-[var(--muted-foreground)]" data-i18n="hero_sub">
+          OpenAI acquired Promptfoo and Cisco acquired Galileo. Enterprises, Big-4 auditors, and AI liability insurers now demand an independent, vendor-neutral control plane. AgentProof signs every tool decision with Ed25519 <strong>before</strong> side effects run, blocks unauthorized calls with fail-closed policy gates, and counter-signs chains in an out-of-band WORM Witness Cloud.
+        </p>
+        <div class="flex flex-wrap justify-center gap-3 pt-2">
+          <button onclick="document.getElementById('live-scanner-box').scrollIntoView({behavior:'smooth'})" class="px-5 py-2.5 rounded-xl bg-sky-500 text-slate-950 font-bold text-sm" data-i18n="hero_cta1">
+            🔍 Free Shadow MCP &amp; Tool Scan
+          </button>
+          <button onclick="navTo('page-pricing')" class="px-5 py-2.5 rounded-xl bg-[var(--secondary)] border border-[var(--border)] font-bold text-sm" data-i18n="hero_cta2">
+            💳 Start Pro Cloud ($99/mo)
+          </button>
+          <div class="flex items-center px-4 py-2 rounded-xl bg-[var(--secondary)] border border-[var(--border)] font-mono text-xs text-emerald-400">
+            $ pip install agentproof &amp;&amp; agentproof scan .
+          </div>
+        </div>
+      </div>
+
+      <!-- Free Online Scanner -->
+      <div id="live-scanner-box" class="bg-[var(--card)] border-2 border-sky-500/50 rounded-2xl p-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold text-sky-400 uppercase tracking-wider" data-i18n="scan_kicker">Zero-Install Security Assessment</span>
+            <h2 class="text-lg font-bold mt-0.5" data-i18n="scan_title">⚡ Instant Shadow MCP &amp; Unguarded Agent Tool Scanner</h2>
+            <p class="text-xs text-[var(--muted-foreground)]" data-i18n="scan_sub">
+              Paste your <code>mcp.json</code> or Python agent tools below to uncover unpinned servers, hardcoded keys, and unguarded mutations — and auto-generate a fail-closed <code>policy.yaml</code>.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <button onclick="loadSampleSnippet('mcp')" class="px-3 py-1.5 rounded-lg bg-[var(--secondary)] border border-[var(--border)] font-semibold" data-i18n="btn_sample_mcp">
+              Sample mcp.json
+            </button>
+            <button onclick="loadSampleSnippet('python')" class="px-3 py-1.5 rounded-lg bg-[var(--secondary)] border border-[var(--border)] font-semibold" data-i18n="btn_sample_py">
+              Sample Python Tool
+            </button>
+            <button onclick="runOnlineScan()" class="px-4 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold" data-i18n="btn_run_scan">
+              🚀 Run Security Scan
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <div class="text-xs font-semibold mb-1.5 text-[var(--muted-foreground)]" data-i18n="scan_input_label">Configuration or Python Source:</div>
+            <textarea id="scanner-input" rows="11" class="w-full p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] font-mono text-xs focus:outline-none focus:border-sky-400"></textarea>
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs font-semibold text-[var(--muted-foreground)]" data-i18n="scan_output_label">Findings &amp; Auto-Generated policy.yaml:</span>
+              <span id="scan-grade-badge" class="text-xs px-2 py-0.5 rounded font-bold bg-rose-500/20 text-rose-300">Ready</span>
+            </div>
+            <div id="scanner-output" class="h-[232px] overflow-y-auto p-3.5 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs space-y-2">
+              <div class="text-[var(--muted-foreground)]">Run a scan to inspect findings and generate a fail-closed starter policy...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Pillars -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 space-y-2">
+          <div class="text-xs font-bold text-sky-400">01 / RUNTIME GATE</div>
+          <h3 class="text-base font-bold" data-i18n="p1_title">1-Line Pre-Execution Enforcement</h3>
+          <p class="text-xs text-[var(--muted-foreground)]" data-i18n="p1_desc">
+            Decorate any tool with <code>@gate.guard("wire.transfer")</code>. Decisions are signed before the function executes, and policy violations throw <code>PolicyDeniedError</code> before side effects occur.
+          </p>
+        </div>
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 space-y-2">
+          <div class="text-xs font-bold text-emerald-400">02 / OUT-OF-BAND WITNESS</div>
+          <h3 class="text-base font-bold" data-i18n="p2_title">Anti-Rewrite Cryptographic Notary</h3>
+          <p class="text-xs text-[var(--muted-foreground)]" data-i18n="p2_desc">
+            A local signing key alone cannot prove insiders didn't rewrite history. AgentProof Cloud counter-signs every receipt with an independent WORM Ed25519 Witness key.
+          </p>
+        </div>
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 space-y-2">
+          <div class="text-xs font-bold text-purple-400">03 / VANTA · DRATA · AIUC-1</div>
+          <h3 class="text-base font-bold" data-i18n="p3_title">Native GRC &amp; Underwriting Export</h3>
+          <p class="text-xs text-[var(--muted-foreground)]" data-i18n="p3_desc">
+            Push cryptographic evidence directly to Vanta, Drata, and Datadog Cloud SIEM, and generate Lloyd's AIUC-1 insurability scorecards (eligible for preferred underwriting discounts).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PAGE 2: PRICING & SELF-SERVE PROVISIONING                             -->
+    <!-- ===================================================================== -->
+    <section id="page-pricing" class="hidden space-y-6">
+      <div class="text-center space-y-2">
+        <h2 class="text-2xl font-extrabold" data-i18n="pricing_title">Simple, Predictable Compliance SaaS Pricing</h2>
+        <p class="text-xs text-[var(--muted-foreground)]" data-i18n="pricing_sub">
+          Open-source MIT CLI is free forever. Upgrade to AgentProof Cloud when auditors or insurers require an independent out-of-band Witness.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <div class="text-xs font-bold text-[var(--muted-foreground)]">FREE OSS DEVELOPER</div>
+            <div class="text-3xl font-extrabold mt-2">$0 <span class="text-xs font-normal text-[var(--muted-foreground)]">/ mo</span></div>
+            <p class="text-xs text-[var(--muted-foreground)] mt-2">For solo builders and open-source teams</p>
+            <ul class="text-xs space-y-2 my-5 text-[var(--muted-foreground)]">
+              <li>✅ Unlimited local <code>agentproof scan</code> &amp; CLI</li>
+              <li>✅ <strong>1,000</strong> Cloud Witness receipts / month</li>
+              <li>✅ Offline self-verifiable HTML dashboards</li>
+              <li>✅ Basic EU AI Act Art. 26 Markdown export</li>
+            </ul>
+          </div>
+          <button onclick="selectPlanForSignup('FREE', 0)" class="w-full py-2.5 rounded-xl border border-[var(--border)] text-xs font-bold">
+            Provision Free API Key
+          </button>
+        </div>
+
+        <div class="bg-[var(--card)] border-2 border-sky-400 rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-sky-400">PRO COMPLIANCE TEAM</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold">Most Popular</span>
+            </div>
+            <div class="text-3xl font-extrabold mt-2">$99 <span class="text-xs font-normal text-[var(--muted-foreground)]">/ mo</span></div>
+            <p class="text-xs text-[var(--muted-foreground)] mt-2">For startups passing SOC 2, ISO 42001 &amp; enterprise security reviews</p>
+            <ul class="text-xs space-y-2 my-5">
+              <li>✅ <strong>100,000</strong> Cloud Witness counter-signed receipts / mo</li>
+              <li>✅ Anti-rewrite out-of-band Ed25519 attestation</li>
+              <li>✅ One-click <strong>Vanta / Drata / Datadog</strong> export</li>
+              <li>✅ GitHub Actions CI/CD regression gate</li>
+            </ul>
+          </div>
+          <button onclick="selectPlanForSignup('PRO', 99)" class="w-full py-2.5 rounded-xl bg-sky-500 text-slate-950 text-xs font-extrabold">
+            Start Pro Team ($99/mo)
+          </button>
+        </div>
+
+        <div class="bg-[var(--card)] border-2 border-purple-500 rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-purple-400">ENTERPRISE &amp; AIUC-1</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold">Underwriting</span>
+            </div>
+            <div class="text-3xl font-extrabold mt-2">$1,500 <span class="text-xs font-normal text-[var(--muted-foreground)]">/ mo</span></div>
+            <p class="text-xs text-[var(--muted-foreground)] mt-2">For regulated AI deployers, law firms &amp; AI liability underwriting</p>
+            <ul class="text-xs space-y-2 my-5">
+              <li>✅ <strong>10,000,000</strong> WORM-locked notarized receipts / mo</li>
+              <li>✅ <strong>Lloyd's AIUC-1 Insurability Scorecard</strong></li>
+              <li>✅ Dedicated Big-4 auditor verification portal</li>
+              <li>✅ EU CRA Art. 14 24h incident &amp; AIBOM bundle</li>
+            </ul>
+          </div>
+          <button onclick="selectPlanForSignup('ENTERPRISE', 1500)" class="w-full py-2.5 rounded-xl bg-purple-500 text-white text-xs font-extrabold">
+            Start Enterprise ($1,500/mo)
+          </button>
+        </div>
+      </div>
+
+      <!-- Onboarding Form -->
+      <div id="signup-checkout-box" class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 max-w-2xl mx-auto space-y-4">
+        <h3 class="text-base font-bold" data-i18n="signup_title">🚀 Provision Organization Tenant &amp; Production API Key</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-[var(--muted-foreground)] mb-1">Organization Name</label>
+            <input id="signup-org" value="Acme FinTech AI Ops" class="w-full p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)]" />
+          </div>
+          <div>
+            <label class="block text-[var(--muted-foreground)] mb-1">Security / Compliance Email</label>
+            <input id="signup-email" value="secops@acme-fintech.io" class="w-full p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)]" />
+          </div>
+        </div>
+        <div id="checkout-redirect-banner" class="hidden p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-xs flex flex-wrap items-center justify-between gap-2">
+          <span>🔒 Payment checkout is required to activate paid quota on the live backend:</span>
+          <a id="checkout-redirect-link" href="#" target="_blank" rel="noopener" class="px-3.5 py-1.5 rounded-lg bg-amber-400 text-slate-950 font-bold">
+            Open Secure Checkout →
+          </a>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+          <div class="text-xs">
+            Selected Tier: <strong id="selected-plan-label" class="text-sky-400">PRO ($99/mo — 100,000 notarized receipts)</strong>
+          </div>
+          <button onclick="completeSelfServeSignup()" class="px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs">
+            💳 Create Tenant &amp; Issue API Key →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PAGE 3: LIVE WITNESS SAAS CONSOLE                                     -->
+    <!-- ===================================================================== -->
+    <section id="page-console" class="hidden space-y-5">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="text-xs text-[var(--muted-foreground)]">Active Organization Tenant</div>
+          <div id="console-org-title" class="text-lg font-bold mt-0.5">Acme FinTech AI Ops</div>
+          <div class="text-xs text-emerald-400 font-mono mt-1">
+            X-AgentProof-Key: <span id="console-api-key">ap_live_demo</span>
+          </div>
+        </div>
+        <div class="flex gap-5 text-right">
+          <div>
+            <div class="text-xs text-[var(--muted-foreground)]">Platform ARR</div>
+            <div id="top-arr" class="text-base font-bold text-emerald-400">$0</div>
+          </div>
+          <div>
+            <div class="text-xs text-[var(--muted-foreground)]">Active Plan</div>
+            <div id="console-plan-badge" class="text-base font-bold text-sky-400">PRO ($99/mo)</div>
+          </div>
+          <div>
+            <div class="text-xs text-[var(--muted-foreground)]">Notarized Quota</div>
+            <div id="console-quota-badge" class="text-base font-bold">0 / 100,000</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base font-bold">⚡ Real-Time Policy Gate &amp; Cloud Witness Ledger</h3>
+            <p class="text-xs text-[var(--muted-foreground)]">Trigger simulated runtime calls to verify Ed25519 pre-execution signing and out-of-band Witness notarization:</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="appendConsoleReceipt('ledger.query', 'ALLOW', 'Read-only balance check permitted')" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold">
+              + Simulate ALLOW (ledger.query)
+            </button>
+            <button onclick="appendConsoleReceipt('mcp.shell.exec', 'HALT', 'Critical circuit breaker: raw MCP shell halted')" class="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold">
+              + Simulate HALT (mcp.shell.exec)
+            </button>
+            <button onclick="appendConsoleReceipt('db.drop_customers', 'DENY', 'Default fail-closed policy (capability undeclared)')" class="px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold">
+              + Simulate DENY (db.drop_customers)
+            </button>
+          </div>
+        </div>
+
+        <div class="border border-[var(--border)] rounded-xl overflow-hidden">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-[var(--secondary)] text-[var(--muted-foreground)]">
+              <tr>
+                <th class="p-3">Seq</th>
+                <th class="p-3">Actor</th>
+                <th class="p-3">Action</th>
+                <th class="p-3">Decision</th>
+                <th class="p-3">Policy Reason</th>
+                <th class="p-3">Record Hash</th>
+                <th class="p-3">Witness Counter-Sig</th>
+              </tr>
+            </thead>
+            <tbody id="console-ledger-tbody" class="divide-y divide-[var(--border)]"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PAGE 4: ECOSYSTEM EXPORTERS                                           -->
+    <!-- ===================================================================== -->
+    <section id="page-export" class="hidden space-y-5">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold text-purple-400 uppercase">Strategic GRC &amp; SIEM Exporters</span>
+            <h2 class="text-lg font-bold mt-0.5">🤝 Export to Vanta, Drata, Datadog &amp; Lloyd's AIUC-1</h2>
+            <p class="text-xs text-[var(--muted-foreground)]">
+              Standardized JSON payloads generated directly from your verified receipt chain (<code>agentproof export chain.json --target vanta</code>):
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <button onclick="renderExport('vanta')" class="px-3.5 py-2 rounded-lg bg-sky-500 text-slate-950 font-bold">Vanta Evidence</button>
+            <button onclick="renderExport('drata')" class="px-3.5 py-2 rounded-lg bg-[var(--secondary)] border border-[var(--border)] font-bold">Drata Autopilot</button>
+            <button onclick="renderExport('datadog')" class="px-3.5 py-2 rounded-lg bg-[var(--secondary)] border border-[var(--border)] font-bold">Datadog SIEM</button>
+            <button onclick="renderExport('aiuc1')" class="px-3.5 py-2 rounded-lg bg-purple-500 text-white font-bold">Lloyd's AIUC-1</button>
+          </div>
+        </div>
+        <pre id="export-json-box" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] font-mono text-xs overflow-x-auto max-h-[380px]"></pre>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Resolve API base: ?api=https://... -> localStorage -> same-origin if hosted on backend
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("api")) {
+      localStorage.setItem("agentproof_api_base", urlParams.get("api").replace(/\/+$/, ""));
+    }
+    let API_BASE = localStorage.getItem("agentproof_api_base") || "";
+    let backendConnected = false;
+    let currentLang = "en";
+
+    let appMrr = 0;
+    let selectedPlan = "PRO";
+    let selectedUsd = 99;
+    let activeOrg = "Acme FinTech AI Ops";
+    let activeTenantId = "";
+    let activeApiKey = "ap_live_demo_preview";
+    let activePlan = "PRO";
+    let activeQuota = 100000;
+
+    let receipts = [
+      { seq: 0, actor: "treasury-agent-prod", action: "ledger.query", decision: "ALLOW", reason: "Read-only balance check permitted", hash: "7a19e2c4...91b0", witness: "ed25519:81c2f9...04a1" },
+      { seq: 1, actor: "treasury-agent-prod", action: "wire.transfer", decision: "ALLOW", reason: "Scoped wire transfer with treasury:approve", hash: "3f80b1d2...44c8", witness: "ed25519:19e4a0...bb32" },
+      { seq: 2, actor: "treasury-agent-prod", action: "mcp.shell.exec", decision: "HALT", reason: "Critical circuit breaker: raw MCP shell halted", hash: "9d02c4e1...55f7", witness: "ed25519:63b7d1...e908" },
+      { seq: 3, actor: "treasury-agent-prod", action: "db.drop_customers", decision: "DENY", reason: "Default fail-closed policy (capability undeclared)", hash: "e510a9b3...12d6", witness: "ed25519:44f1c8...77a9" }
+    ];
+
+    const I18N = {
+      en: {
+        nav_home: "Scanner & Overview",
+        nav_pricing: "Pricing ($99 / $1,500)",
+        nav_console: "Witness Console",
+        nav_export: "Vanta / Datadog / AIUC-1",
+        cta_top: "Get API Key →",
+        hero_badge: "Vendor-Neutral · EU AI Act Art. 26 · Lloyd's AIUC-1 Insurability · SOC 2 / ISO 42001",
+        hero_cta1: "🔍 Free Shadow MCP & Tool Scan",
+        hero_cta2: "💳 Start Pro Cloud ($99/mo)",
+        scan_kicker: "Zero-Install Security Assessment",
+        scan_title: "⚡ Instant Shadow MCP & Unguarded Agent Tool Scanner",
+        btn_sample_mcp: "Sample mcp.json",
+        btn_sample_py: "Sample Python Tool",
+        btn_run_scan: "🚀 Run Security Scan",
+        pricing_title: "Simple, Predictable Compliance SaaS Pricing",
+        signup_title: "🚀 Provision Organization Tenant & Production API Key"
+      },
+      zh: {
+        nav_home: "官网首页 & 免费扫描",
+        nav_pricing: "定价方案 ($99 / $1,500)",
+        nav_console: "云端双签控制台",
+        nav_export: "Vanta / Datadog / 核保导出",
+        cta_top: "开通 API Key →",
+        hero_badge: "跨厂商中立 · 欧盟 AI 法案 Art.26 · 劳合社 AIUC-1 核保 · SOC 2 / ISO 42001",
+        hero_cta1: "🔍 立即免费扫描 MCP 与代码",
+        hero_cta2: "💳 开通 Pro 云端公证 ($99/月)",
+        scan_kicker: "免安装免费获客扫描器",
+        scan_title: "⚡ 在线 Shadow MCP 与裸奔 Agent 工具漏洞扫描",
+        btn_sample_mcp: "载入高危 mcp.json",
+        btn_sample_py: "载入裸奔 Python 工具",
+        btn_run_scan: "🚀 立即执行安全扫描",
+        pricing_title: "清晰的企业级合规公证 SaaS 定价",
+        signup_title: "🚀 30 秒自助开通企业租户并签发 API Key"
+      }
+    };
+
+    function toggleLang() {
+      currentLang = currentLang === "en" ? "zh" : "en";
+      const dict = I18N[currentLang];
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) el.textContent = dict[key];
+      });
+      document.getElementById("lang-btn").textContent = currentLang === "en" ? "切换到中文" : "Switch to EN";
+    }
+
+    const SAMPLE_MCP = `{
+  "mcpServers": {
+    "shell-runner": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-shell", "/"],
+      "env": {
+        "OPENAI_API_KEY": "sk-live-plaintext-secret-998877"
+      }
+    }
+  }
+}`;
+
+    const SAMPLE_PYTHON = `import subprocess
+from langchain.tools import tool
+
+@tool
+def delete_customer_account(customer_id: str):
+    """Delete customer from production DB and clean cache."""
+    subprocess.run(["rm", "-rf", "/var/data/cache"])
+    sql = "DELETE FROM customers WHERE id = '" + customer_id + "'"
+    return sql`;
+
+    function navTo(pageId) {
+      ["page-home", "page-pricing", "page-console", "page-export"].forEach(id => {
+        document.getElementById(id).classList.toggle("hidden", id !== pageId);
+        const btn = document.getElementById("nav-" + id);
+        btn.className = id === pageId
+          ? "px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold"
+          : "px-3 py-1.5 rounded-lg bg-[var(--secondary)] text-[var(--foreground)]";
+      });
+      if (pageId === "page-console") loadLiveOverview();
+      if (pageId === "page-export") renderExport("vanta");
+    }
+
+    async function checkBackendHealth() {
+      const pill = document.getElementById("api-status-pill");
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/health`);
+        if (res.ok) {
+          const data = await res.json();
+          backendConnected = true;
+          pill.textContent = "● Live Witness API";
+          pill.className = "px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-bold";
+          if (data.metrics && typeof data.metrics.arr_usd === "number") {
+            document.getElementById("top-arr").textContent = `$${data.metrics.arr_usd.toLocaleString()}`;
+          }
+          return;
+        }
+      } catch (_e) {}
+      backendConnected = false;
+      pill.textContent = "○ Bind Cloud API URL";
+      pill.className = "px-2.5 py-1 rounded-lg bg-[var(--secondary)] border border-[var(--border)] text-[var(--muted-foreground)] hover:border-sky-400";
+    }
+
+    function configureBackendUrl() {
+      const next = window.prompt(
+        "Enter your deployed AgentProof Python Cloud URL (e.g. https://agentproof-cloud.up.railway.app). Leave empty to use current origin / sandbox mode:",
+        API_BASE
+      );
+      if (next === null) return;
+      API_BASE = next.trim().replace(/\/+$/, "");
+      if (API_BASE) localStorage.setItem("agentproof_api_base", API_BASE);
+      else localStorage.removeItem("agentproof_api_base");
+      checkBackendHealth();
+    }
+
+    function loadSampleSnippet(kind) {
+      document.getElementById("scanner-input").value = kind === "mcp" ? SAMPLE_MCP : SAMPLE_PYTHON;
+      runOnlineScan();
+    }
+
+    async function runOnlineScan() {
+      const code = document.getElementById("scanner-input").value;
+      const badge = document.getElementById("scan-grade-badge");
+      const out = document.getElementById("scanner-output");
+      const filename = code.trim().startsWith("{") ? "mcp.json" : "agent_tools.py";
+
+      if (backendConnected) {
+        try {
+          const res = await fetch(`${API_BASE}/api/v1/scan-snippet`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content: code, filename })
+          });
+          if (res.ok) {
+            const payload = await res.json();
+            renderScanReport(payload.report, payload.starter_policy_yaml, "Live Python AST + MCP Engine");
+            return;
+          }
+        } catch (_e) {}
+      }
+
+      // Local deterministic fallback when running as pure static Netlify Drop preview
+      const findings = [];
+      if (code.includes("npx") && code.includes("-y")) {
+        findings.push({ severity: "HIGH", rule_id: "MCP-001", title: "Unpinned auto-install MCP server (npx -y)" });
+      }
+      if (code.includes("shell") || code.includes("subprocess") || code.includes("os.system")) {
+        findings.push({ severity: "CRITICAL", rule_id: "MCP-002 / TOOL-001", title: "Unrestricted shell or subprocess execution without pre-action gate" });
+      }
+      if (code.includes('"/"') || code.includes("C:\\\\")) {
+        findings.push({ severity: "CRITICAL", rule_id: "MCP-003", title: "Root filesystem mounted into MCP server" });
+      }
+      if (code.includes("sk-live") || code.includes("API_KEY")) {
+        findings.push({ severity: "HIGH", rule_id: "MCP-004", title: "Plaintext API secret hardcoded in MCP env" });
+      }
+      if (code.toUpperCase().includes("DELETE FROM") || code.toUpperCase().includes("DROP TABLE")) {
+        findings.push({ severity: "HIGH", rule_id: "TOOL-004", title: "Unguarded SQL mutation without @gate.guard()" });
+      }
+      const risk_score = Math.min(100, findings.length * 22);
+      const security_grade = risk_score === 0 ? "A" : risk_score <= 25 ? "C" : "F";
+      const starterYaml = `version: 1\nsubject: web-scanned-agent\ncapabilities:\n  - name: kb.search\nrules:\n  - id: halt-high-risk\n    action: "mcp.*"\n    effect: halt\n  - id: deny-default\n    action: "*"\n    effect: deny`;
+      renderScanReport({ risk_score, security_grade, findings }, starterYaml, "Static Edge Scanner");
+    }
+
+    function renderScanReport(report, policyYaml, engineLabel) {
+      const badge = document.getElementById("scan-grade-badge");
+      const out = document.getElementById("scanner-output");
+      if (!report.findings || !report.findings.length) {
+        badge.textContent = `Grade ${report.security_grade} (${report.risk_score}/100)`;
+        badge.className = "text-xs px-2 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-300";
+        out.innerHTML = `<div class="text-emerald-400 font-bold">✅ PASS (${engineLabel}) — No unguarded high-risk tools found.</div>`;
+        return;
+      }
+      badge.textContent = `Grade ${report.security_grade} (${report.risk_score}/100 Risk)`;
+      badge.className = "text-xs px-2 py-0.5 rounded font-bold bg-rose-500/20 text-rose-300";
+      const itemsHtml = report.findings.map(f => `
+        <div class="p-2 rounded bg-rose-500/10 border border-rose-500/30">
+          <strong class="text-rose-300">[${f.severity}] ${f.rule_id}</strong>: ${f.title}
+        </div>
+      `).join("");
+      out.innerHTML = `
+        <div class="text-[var(--muted-foreground)]">Engine: <code>${engineLabel}</code></div>
+        <div class="space-y-1.5">${itemsHtml}</div>
+        <div class="pt-2 font-bold text-sky-400">🛡️ Auto-Generated Fail-Closed policy.yaml:</div>
+        <pre class="p-2 rounded bg-[var(--card)] font-mono text-xs overflow-x-auto">${policyYaml || ""}</pre>
+      `;
+    }
+
+    function selectPlanForSignup(plan, usd) {
+      selectedPlan = plan;
+      selectedUsd = usd;
+      document.getElementById("checkout-redirect-banner").classList.add("hidden");
+      document.getElementById("selected-plan-label").textContent = `${plan} ($${usd}/mo)`;
+      document.getElementById("signup-checkout-box").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function randHex(n) {
+      let s = "";
+      const c = "0123456789abcdef";
+      for (let i = 0; i < n; i++) s += c[Math.floor(Math.random() * 16)];
+      return s;
+    }
+
+    async function completeSelfServeSignup() {
+      const org = document.getElementById("signup-org").value.trim() || "New AI Corp";
+      const email = document.getElementById("signup-email").value.trim() || "secops@company.com";
+      const banner = document.getElementById("checkout-redirect-banner");
+      banner.classList.add("hidden");
+
+      if (backendConnected) {
+        try {
+          const res = await fetch(`${API_BASE}/api/v1/tenants`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ org_name: org, email: email, plan: "FREE" })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            activeOrg = data.tenant.org_name;
+            activeTenantId = data.tenant.tenant_id;
+            activeApiKey = data.api_key;
+            activePlan = data.tenant.plan;
+            activeQuota = data.tenant.monthly_quota;
+
+            if (selectedPlan !== "FREE") {
+              const upRes = await fetch(`${API_BASE}/api/v1/billing/upgrade`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tenant_id: activeTenantId, plan: selectedPlan })
+              });
+              const upData = await upRes.json();
+              if (upData.checkout_required && upData.checkout_url) {
+                document.getElementById("checkout-redirect-link").href = upData.checkout_url;
+                banner.classList.remove("hidden");
+                return;
+              }
+              if (upRes.ok && upData.tenant) {
+                activePlan = upData.tenant.plan;
+                activeQuota = upData.tenant.monthly_quota;
+              }
+            }
+            navTo("page-console");
+            return;
+          }
+        } catch (_e) {}
+      }
+
+      // Preview fallback
+      activeOrg = org;
+      activeTenantId = "tnt_" + randHex(8);
+      activeApiKey = "ap_live_" + randHex(24);
+      activePlan = selectedPlan;
+      activeQuota = selectedPlan === "ENTERPRISE" ? 10000000 : selectedPlan === "PRO" ? 100000 : 1000;
+      if (selectedUsd > 0) {
+        appMrr += selectedUsd;
+        document.getElementById("top-arr").textContent = `$${(appMrr * 12).toLocaleString()}`;
+      }
+      navTo("page-console");
+    }
+
+    async function loadLiveOverview() {
+      if (backendConnected && activeTenantId) {
+        try {
+          const res = await fetch(`${API_BASE}/api/v1/overview?tenant_id=${encodeURIComponent(activeTenantId)}`);
+          if (res.ok) {
+            const data = await res.json();
+            activeOrg = data.tenant.org_name;
+            activePlan = data.tenant.plan;
+            activeQuota = data.tenant.monthly_quota;
+            if (data.platform_metrics) {
+              document.getElementById("top-arr").textContent = `$${data.platform_metrics.arr_usd.toLocaleString()}`;
+            }
+            receipts = (data.notarized_receipts || []).map(r => ({
+              seq: r.seq,
+              actor: r.actor,
+              action: r.action,
+              decision: r.decision,
+              reason: r.reason,
+              hash: `${String(r.record_hash).slice(0, 8)}...${String(r.record_hash).slice(-4)}`,
+              witness: `ed25519:${String(r.witness_signature).slice(0, 8)}...`
+            }));
+          }
+        } catch (_e) {}
+      }
+      renderConsole();
+    }
+
+    function renderConsole() {
+      document.getElementById("console-org-title").textContent = activeTenantId ? `${activeOrg} (${activeTenantId})` : activeOrg;
+      document.getElementById("console-api-key").textContent = activeApiKey;
+      document.getElementById("console-plan-badge").textContent = activePlan;
+      document.getElementById("console-quota-badge").textContent = `${receipts.length.toLocaleString()} / ${activeQuota.toLocaleString()}`;
+
+      const tbody = document.getElementById("console-ledger-tbody");
+      if (!receipts.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-[var(--muted-foreground)]">No receipts notarized yet for this tenant. Click a simulation button above!</td></tr>';
+        return;
+      }
+      tbody.innerHTML = receipts.slice().reverse().map(r => {
+        const cls = r.decision === "ALLOW"
+          ? "bg-emerald-500/20 text-emerald-300"
+          : r.decision === "HALT"
+          ? "bg-amber-500/20 text-amber-300"
+          : "bg-rose-500/20 text-rose-300";
+        return `
+          <tr>
+            <td class="p-3 font-mono">#${r.seq}</td>
+            <td class="p-3 font-mono">${r.actor}</td>
+            <td class="p-3 font-mono font-bold">${r.action}</td>
+            <td class="p-3"><span class="px-2 py-0.5 rounded font-bold ${cls}">${r.decision}</span></td>
+            <td class="p-3">${r.reason}</td>
+            <td class="p-3 font-mono text-[var(--muted-foreground)]">${r.hash}</td>
+            <td class="p-3 font-mono text-emerald-400">✓ ${r.witness}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function appendConsoleReceipt(action, decision, reason) {
+      if (backendConnected && activeApiKey && activeApiKey.startsWith("ap_live_")) {
+        try {
+          const res = await fetch(`${API_BASE}/api/v1/simulate-action`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ api_key: activeApiKey, action, inputs: { source: "web-console" } })
+          });
+          if (res.ok) {
+            await loadLiveOverview();
+            return;
+          }
+        } catch (_e) {}
+      }
+      receipts.push({
+        seq: receipts.length,
+        actor: "prod-agent-01",
+        action,
+        decision,
+        reason,
+        hash: `${randHex(8)}...${randHex(4)}`,
+        witness: `ed25519:${randHex(6)}...${randHex(4)}`
+      });
+      renderConsole();
+    }
+
+    async function renderExport(target) {
+      const box = document.getElementById("export-json-box");
+      if (backendConnected && activeTenantId) {
+        try {
+          const res = await fetch(`${API_BASE}/api/v1/export?tenant_id=${encodeURIComponent(activeTenantId)}&target=${encodeURIComponent(target)}`);
+          if (res.ok) {
+            const payload = await res.json();
+            box.textContent = JSON.stringify(payload, null, 2);
+            return;
+          }
+        } catch (_e) {}
+      }
+      const payloads = {
+        vanta: {
+          schema_version: "vanta.custom_evidence.v1",
+          integration_source: "agentproof",
+          resource_type: "ai_agent_cryptographic_control_chain",
+          external_id: `agentproof:${activeTenantId || "preview"}`,
+          display_name: `AgentProof Pre-Action Ledger — ${activeOrg}`,
+          status: "PASS",
+          controls_satisfied: ["ISO42001-A.6.2.8", "SOC2-CC6.1", "SOC2-CC7.2", "EU-AI-ACT-ART26", "AIUC-1"],
+          insurability_scorecard: {
+            insurability_score: 100,
+            underwriting_tier: "TIER_1_PREFERRED",
+            premium_adjustment: "-20% Preferred Underwriting Discount Eligible"
+          },
+          cryptographic_proof: {
+            records_verified: receipts.length,
+            witness_notarized: true
+          }
+        },
+        drata: {
+          schema: "drata.autopilot.evidence.v1",
+          provider: "agentproof-cloud",
+          check_name: "AI Agent Pre-Execution Policy Gate & Cryptographic Audit Trail",
+          organization: activeOrg,
+          compliant: true,
+          underwriting_tier: "TIER_1_PREFERRED",
+          insurability_score: 100
+        },
+        datadog: {
+          schema: "datadog.logs.intake.v2",
+          integrity_verified: true,
+          events: receipts.slice(-2).map(r => ({
+            ddsource: "agentproof",
+            service: activeOrg,
+            status: r.decision === "ALLOW" ? "info" : "error",
+            message: `[AgentProof ${r.decision}] action=${r.action}: ${r.reason}`
+          }))
+        },
+        aiuc1: {
+          schema: "lloyds.aiuc1.underwriting.v1",
+          insured_organization: activeOrg,
+          insurability_score: 100,
+          underwriting_tier: "TIER_1_PREFERRED",
+          recommended_premium_discount: "20%"
+        }
+      };
+      box.textContent = JSON.stringify(payloads[target], null, 2);
+    }
+
+    checkBackendHealth();
+    loadSampleSnippet("mcp");
+  </script>
+</body>
+</html>

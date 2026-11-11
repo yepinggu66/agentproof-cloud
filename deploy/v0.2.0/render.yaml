@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: agentproof-cloud
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/v1/health
+    disk:
+      name: agentproof-worm-ledger
+      mountPath: /data
+      sizeGB: 10
+    envVars:
+      - key: PORT
+        value: "8780"
+      - key: AGENTPROOF_DB_PATH
+        value: "/data/agentproof-cloud.db"
+      - key: AGENTPROOF_WEBHOOK_SECRET
+        sync: false
+      - key: AGENTPROOF_CHECKOUT_PRO_URL
+        sync: false
+      - key: AGENTPROOF_CHECKOUT_ENTERPRISE_URL
+        sync: false
