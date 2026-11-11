@@ -11,16 +11,26 @@ online scanner that analyses real `mcp.json` and Python tool code, self-serve
 tenant onboarding with API keys, a dual-signed (Ed25519) hash-chained ledger,
 and mapping-draft exports for Vanta / Drata / Datadog / Lloyd's AIUC-1.
 
+Since **v0.2.0** the repository also contains the reusable software foundation
+(previously developed separately): the `agentproof` Python package with the
+runtime gate, cloud notary (signed receipts + storage + billing), exporters and
+scanner, plus the original 227-test suite. `pip install -e .` gives you the
+`agentproof` CLI; the FastAPI service in `server/` powers the commercial site.
+
 ```
-  site/                 the static, self-contained commercial site (4 views)
+  src/agentproof/       v0.2.0 library: runtime gate, cloud notary, exporters, scanner, CLI
   server/               FastAPI service: scanner, tenants, signed ledger, exports
-  tools/leadgen.py      batch read-only scan of public GitHub agent repos
-  docs/launch-copy.md   launch drafts + pre-publish NO-GO checklist
+  site/                 the static, self-contained commercial site (4 views)
+  tools/                lead-gen + signed audit report generator
+  docs/                 commercial plan, launch copy, sample audit, v0.2.0 archive
+  demo/ examples/       v0.2.0 demo artifacts and usage examples
+  netlify/functions/    stateless preview API (never fabricates tenants or ARR)
+  deploy/v0.2.0/        original Dockerfile / render / railway configs (archived)
   scripts/              local runner + Playwright screenshot capture
-  tests/                40 tests incl. JS/Python scanner parity and tamper detection
+  tests/                272 tests: library + commercial API + JS/Python scanner parity
   Dockerfile            single-image deployment (site + API + SQLite volume)
   railway.json          Railway one-click deploy config
-  netlify.toml          static-only publish config for the marketing site
+  netlify.toml          static publish + preview function config
 ```
 
 ## The four views
@@ -61,6 +71,23 @@ powershell -ExecutionPolicy Bypass -File scripts\run_local.ps1
 
 The service serves `site/` at `/` and the JSON API at `/api/*`. Data (SQLite)
 and signing keys live in `data/` by default; override with `AGENTPROOF_DATA_DIR`.
+
+### Library and CLI (merged v0.2.0)
+
+```bash
+pip install -e .            # installs the `agentproof` package and CLI
+agentproof --help
+agentproof scan . --init-policy policy.yaml   # MCP/agent scanner + generated policy
+agentproof cloud-serve --port 8780            # self-hosted cloud notary + console
+```
+
+The reusable software foundation lives in `src/agentproof/`:
+
+- `runtime/gate.py` — pre-execution policy gate that signs an Ed25519 receipt before the action runs
+- `cloud/` — notary, WORM-style storage, HMAC-verified billing webhooks, self-hosted console
+- `exporters/integrations.py` — Vanta / Drata / Datadog / Lloyd's AIUC-1 payloads
+- `scanner/` — MCP config + Python tool scanner and report builder
+- `cli.py` — `agentproof` commands (scan, scout, chain, evidence, export, insurability, cloud-serve)
 
 ### Static-only preview
 
@@ -123,7 +150,7 @@ master key (`data/master.key`); only the API key's SHA-256 digest is stored.
 
 ```bash
 pip install -r requirements-dev.txt
-python -m pytest            # 37 tests, ~1s (needs Node.js for parity tests)
+python -m pytest            # 272 tests, ~13s (needs Node.js for parity tests)
 python scripts/screenshot_preview.py http://127.0.0.1:8791 .tmp/shots
 ```
 

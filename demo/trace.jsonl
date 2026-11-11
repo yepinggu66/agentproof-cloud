@@ -1,0 +1,6 @@
+{"action": "", "agent": "support-agent", "error": null, "inputs": {}, "kind": "agent.start", "outputs": {}, "payload": {}, "tags": [], "ts": "2026-10-26T17:42:24.718399Z"}
+{"action": "", "agent": "support-agent", "error": null, "inputs": {}, "kind": "llm.call", "outputs": {"content": "Let me look this up"}, "payload": {}, "tags": [], "ts": "2026-10-26T17:42:24.718399Z"}
+{"action": "kb.search", "agent": "support-agent", "error": null, "inputs": {"q": "refund policy"}, "kind": "tool.call", "outputs": {}, "payload": {}, "tags": [], "ts": "2026-10-26T17:42:24.718399Z"}
+{"action": "kb.search", "agent": "support-agent", "error": null, "inputs": {}, "kind": "tool.result", "outputs": {"hits": 3}, "payload": {}, "tags": [], "ts": "2026-10-26T17:42:24.718399Z"}
+{"action": "db.write", "agent": "support-agent", "error": null, "inputs": {"sql": "UPDATE customers SET status='refunded' WHERE id=8812"}, "kind": "tool.call", "outputs": {}, "payload": {}, "tags": [], "ts": "2026-10-26T17:42:24.718399Z"}
+{"action": "db.write", "agent": "support-agent", "error": "permission denied for role support_agent", "inputs": {}, "kind": "error", "outputs": {}, "payload": {}, "tags": [], "ts": "2026-10-26T17:42:24.718399Z"}

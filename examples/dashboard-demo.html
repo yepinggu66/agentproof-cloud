@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>acme-support-agent 证据仪表盘 — agentproof 证据仪表盘</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #fbfbfc;
+  --border: #e3e5e9;
+  --border-strong: #d0d3d9;
+  --text: #1c1e23;
+  --text-2: #5c6270;
+  --text-3: #8b909c;
+  --accent: #4a55c7;
+  --accent-soft: #eef0fb;
+  --allow: #1a7f52;
+  --allow-soft: #e6f4ec;
+  --deny: #b4272a;
+  --deny-soft: #fceaea;
+  --halt: #96660a;
+  --halt-soft: #fdf3e0;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC",
+          "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161a;
+    --surface: #1c1f25;
+    --surface-2: #21242b;
+    --border: #2e323a;
+    --border-strong: #3d434e;
+    --text: #e8eaed;
+    --text-2: #a8aeb9;
+    --text-3: #767c88;
+    --accent: #8f9bff;
+    --accent-soft: #23273a;
+    --allow: #52c58c;
+    --allow-soft: #16301f;
+    --deny: #f28b82;
+    --deny-soft: #35191a;
+    --halt: #e0b354;
+    --halt-soft: #33260f;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; }
+
+header.top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 24px; flex-wrap: wrap; margin-bottom: 28px;
+}
+.brand { display: flex; align-items: center; gap: 11px; }
+.mark {
+  width: 30px; height: 30px; border-radius: 8px; flex: none;
+  background: var(--accent); color: #fff;
+  display: grid; place-items: center; font-weight: 700; font-size: 14px;
+}
+.brand h1 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+.brand p { margin: 0; font-size: 12px; color: var(--text-3); }
+.head-meta { text-align: right; font-size: 12px; color: var(--text-3); }
+.head-meta div { margin-top: 2px; }
+.head-meta code { font-family: var(--mono); font-size: 11px; color: var(--text-2); }
+
+.verdict {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); padding: 20px 22px; margin-bottom: 22px;
+  display: flex; gap: 18px; align-items: flex-start;
+}
+.verdict.pass { border-color: color-mix(in srgb, var(--allow) 40%, var(--border)); }
+.verdict.fail { border-color: color-mix(in srgb, var(--deny) 45%, var(--border)); }
+.verdict.unknown { border-color: color-mix(in srgb, var(--halt) 40%, var(--border)); }
+.seal-dot {
+  width: 44px; height: 44px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; font-size: 21px; font-weight: 700;
+}
+.verdict.pass .seal-dot { background: var(--allow-soft); color: var(--allow); }
+.verdict.fail .seal-dot { background: var(--deny-soft); color: var(--deny); }
+.verdict.unknown .seal-dot { background: var(--halt-soft); color: var(--halt); }
+.verdict h2 { margin: 0 0 3px; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.verdict p { margin: 0; font-size: 13px; color: var(--text-2); }
+.verdict .detail {
+  margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text-3);
+}
+.verdict .detail code { font-family: var(--mono); font-size: 11px; }
+
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 12px; margin-bottom: 26px; }
+.metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.metric .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-3); }
+.metric .value { font-size: 25px; font-weight: 600; letter-spacing: -0.02em; margin-top: 3px; line-height: 1.15; }
+.metric .value.allow { color: var(--allow); }
+.metric .value.deny { color: var(--deny); }
+.metric .value.halt { color: var(--halt); }
+.metric .sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+section { margin-bottom: 28px; }
+section > h3 {
+  margin: 0 0 11px; font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3);
+}
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  text-align: left; font-weight: 500; font-size: 11px; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--text-3);
+  padding: 9px 14px; border-bottom: 1px solid var(--border); background: var(--surface-2);
+  white-space: nowrap;
+}
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface-2); }
+td.seq { font-family: var(--mono); font-size: 12px; color: var(--text-3); width: 46px; }
+td.hash { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+td.ts { font-family: var(--mono); font-size: 11px; color: var(--text-3); white-space: nowrap; }
+td.reason { color: var(--text-2); }
+
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 5px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.03em; white-space: nowrap;
+}
+.badge.allow { background: var(--allow-soft); color: var(--allow); }
+.badge.deny { background: var(--deny-soft); color: var(--deny); }
+.badge.halt { background: var(--halt-soft); color: var(--halt); }
+.badge.plain { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
+.action { font-family: var(--mono); font-size: 12px; }
+
+ul.plain { margin: 0; padding-left: 18px; }
+ul.plain li { margin: 4px 0; color: var(--text-2); font-size: 13px; }
+ul.plain li code, .mono { font-family: var(--mono); font-size: 11.5px; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+
+.note {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
+  border-radius: 0 var(--radius) var(--radius) 0; padding: 13px 16px;
+  font-size: 12.5px; color: var(--text-2);
+}
+.note strong { color: var(--text); font-weight: 600; }
+.note.limitation { border-left-color: var(--halt); }
+
+.verifybar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 11px 14px; background: var(--surface-2); border-bottom: 1px solid var(--border);
+  font-size: 12px; color: var(--text-2);
+}
+button.run {
+  font: inherit; font-size: 12px; font-weight: 500;
+  background: var(--accent); color: #fff; border: none;
+  padding: 6px 13px; border-radius: 6px; cursor: pointer;
+}
+button.run:hover { filter: brightness(1.08); }
+button.run:active { transform: translateY(0.5px); }
+.verifybar .status { font-family: var(--mono); font-size: 11.5px; }
+.verifybar .status.ok { color: var(--allow); }
+.verifybar .status.bad { color: var(--deny); }
+.spin { display: inline-block; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+
+.problems { padding: 12px 16px; font-size: 12.5px; }
+.problems li { color: var(--deny); margin: 3px 0; }
+
+footer {
+  margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--border);
+  font-size: 11.5px; color: var(--text-3);
+}
+footer p { margin: 4px 0; }
+footer code { font-family: var(--mono); }
+
+@media print {
+  :root { --bg: #fff; --surface: #fff; --surface-2: #f7f7f8; --text: #000; --text-2: #333; --text-3: #666; --border: #ccc; }
+  body { font-size: 11px; }
+  .wrap { max-width: none; padding: 0; }
+  button.run, .no-print { display: none !important; }
+  section { break-inside: avoid; }
+  .panel { border: 1px solid #ccc; }
+  .verdict { border-width: 2px; }
+  a[href]:after { content: ""; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="mark">A</div>
+    <div>
+      <h1>agentproof 证据仪表盘</h1>
+      <p>acme-support-agent</p>
+    </div>
+  </div>
+  <div class="head-meta">
+    <div>Chain ID <code>5c00259dea62c077</code></div>
+    <div>Generated <code>2026-10-26T17:58:40Z</code></div>
+    <div>Seal <code>matches</code></div>
+  </div>
+</header>
+
+<div class="verdict pass">
+  <div class="seal-dot">✓</div>
+  <div style="flex:1;min-width:0">
+    <h2>Integrity verified</h2>
+    <p>All 3 records hash correctly, the chain links without gaps, and the seal matches the chain.</p>
+    <div class="detail">
+      最终哈希 <code>2bed5ab90d214b6752263ebf0c138804…</code>
+    </div>
+  </div>
+</div>
+
+<div class="metrics">
+  <div class="metric">
+    <div class="label">决策总数</div>
+    <div class="value">3</div>
+    <div class="sub">3 个动作 · 1 个执行方</div>
+  </div>
+  <div class="metric">
+    <div class="label">允许</div>
+    <div class="value allow">2</div>
+    <div class="sub">ALLOW</div>
+  </div>
+  <div class="metric">
+    <div class="label">拒绝</div>
+    <div class="value deny">1</div>
+    <div class="sub">DENY</div>
+  </div>
+  <div class="metric">
+    <div class="label">暂停</div>
+    <div class="value halt">0</div>
+    <div class="sub">HALT</div>
+  </div>
+</div>
+
+<section>
+  <h3>决策记录</h3>
+  <div class="panel">
+    <div class="verifybar">
+      <button class="run" id="run-verify">在浏览器中独立复算</button>
+      <span class="status" id="verify-status">尚未复算 — 页面只显示生成时的结果</span>
+      <span class="no-print" style="margin-left:auto;color:var(--text-3)">
+        复算使用页面内置的 SHA-256 与规范化实现，不发送任何网络请求
+      </span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>时间</th><th>动作</th><th>决策</th><th>理由</th><th>记录哈希</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="seq">0</td>
+        <td class="ts">2026-10-26T17:51:12.373692Z</td>
+        <td class="action">kb.search</td>
+        <td><span class="badge allow">ALLOW</span></td>
+        <td class="reason">Read-only KB access is pre-approved for all support agents</td>
+        <td class="hash">88eeac6bb2cdacf8…</td>
+      </tr>
+      <tr>
+        <td class="seq">1</td>
+        <td class="ts">2026-10-26T17:51:12.696909Z</td>
+        <td class="action">db.write</td>
+        <td><span class="badge deny">DENY</span></td>
+        <td class="reason">Writes to the customer database are not permitted for support agents</td>
+        <td class="hash">847052c6823031b9…</td>
+      </tr>
+      <tr>
+        <td class="seq">2</td>
+        <td class="ts">2026-10-26T17:51:13.019761Z</td>
+        <td class="action">order.refund</td>
+        <td><span class="badge allow">ALLOW</span></td>
+        <td class="reason">Refunds under the pre-approved limit are permitted</td>
+        <td class="hash">2bed5ab90d214b67…</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h3>动作分布</h3>
+  <div class="panel">
+    <table>
+      <thead><tr><th>动作</th><th style="text-align:right">调用次数</th></tr></thead>
+      <tbody>
+      <tr>
+        <td class="action">db.write</td>
+        <td style="text-align:right">1</td>
+      </tr>
+      <tr>
+        <td class="action">kb.search</td>
+        <td style="text-align:right">1</td>
+      </tr>
+      <tr>
+        <td class="action">order.refund</td>
+        <td style="text-align:right">1</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+  <section>
+    <h3>AI Bill of Materials</h3>
+    <div class="panel">
+      <table>
+        <thead><tr><th>Tool</th><th style="text-align:right">Calls</th><th>Used by</th></tr></thead>
+        <tbody>
+        <tr>
+          <td class="action">db.write</td>
+          <td style="text-align:right">1</td>
+          <td class="reason">support-agent</td>
+        </tr>
+        <tr>
+          <td class="action">kb.search</td>
+          <td style="text-align:right">1</td>
+          <td class="reason">support-agent</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section>
+    <h3>Control mapping</h3>
+    <div class="panel grid2" style="padding:16px">
+      <div>
+        <p style="margin:0 0 6px;font-family:var(--mono);font-size:12px">eu-ai-act-article-26</p>
+        <ul class="plain">
+        <li>26(1) use according to instructions for use</li>
+        <li>26(2) human oversight assignment</li>
+        <li>26(4) input data relevance</li>
+        <li>26(5) monitoring of operation</li>
+        <li>26(6) retention of logs</li>
+        <li>26(7) information to workers</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  <section>
+    <h3>Limitations</h3>
+    <div class="note limitation">
+      <p style="margin:0 0 6px"><strong>What this document does not establish.</strong></p>
+      <ul class="plain" style="margin:0">
+      <li>This pack presents evidence artifacts, not a legal opinion and not a certification of compliance.</li>
+      <li>Signatures prove the decisions were issued by the holder of the signing key and have not been altered since. They do not prove the underlying decisions were correct.</li>
+      <li>Verification establishes internal consistency relative to the seal. It cannot establish that a record was never fabricated by someone holding the signing key.</li>
+      <li>Compliance with any listed framework is a determination for counsel or a notified body, not for this tool.</li>
+      </ul>
+    </div>
+  </section>
+
+<footer>
+  <p>本文件由 <code>agentproof</code> 生成，是一个自包含的离线文档：不含外部脚本、字体或统计代码，打开时不产生任何网络请求。</p>
+  <p>独立复算方式：用 <code>agentproof verify &lt;chain.json&gt; --seal &lt;seal.json&gt;</code>，或直接把 <code>chain.json</code> 与 <code>seal.json</code> 交给任何能验证 Ed25519 签名与 SHA-256 的工具。</p>
+  <p>签名证明决策由持钥方签发且此后未被篡改；不证明决策本身正确。合规判定属于法务或公告机构，不属于本工具。</p>
+</footer>
+
+</div>
+
+<script id="payload" type="application/json">{"_meta": {"generated_at": "2026-10-26T17:58:40Z", "tool": "agentproof"}, "chain_id": "5c00259dea62c077", "format": "agentproof-chain-v1", "public_key": "8b9746da03b8079b23f14abb35bbf85fe45e17d7372d718c1f9fed85d2c4390b", "records": [{"action": "kb.search", "actor": "support-agent", "canonical_b64": "eyJhY3Rpb24iOiJrYi5zZWFyY2giLCJhY3RvciI6InN1cHBvcnQtYWdlbnQiLCJjb250ZXh0Ijp7InNjb3BlcyI6WyJrYjpyZWFkIl0sInNlc3Npb24iOiJzLTQyIn0sImRlY2lzaW9uIjoiQUxMT1ciLCJmb3JtYXQiOiJjYW5vbi12MSIsImlucHV0c19kaWdlc3QiOiJpZC0wMDEiLCJpc3N1ZWRfYXQiOiIyMDI2LTEwLTI2VDE3OjUxOjEyLjM3MzY5MloiLCJub25jZSI6ImFlNzRjNmY1OTBmNjQ3ZmFiMDMzYWIwZWRlZDYzYjU2IiwicG9saWN5X2RpZ2VzdCI6InBkLXYzIiwicG9saWN5X2lkIjoiYWNtZS1zdXBwb3J0LXYzIiwicHJldl9oYXNoIjoiIiwicmVhc29uIjoiUmVhZC1vbmx5IEtCIGFjY2VzcyBpcyBwcmUtYXBwcm92ZWQgZm9yIGFsbCBzdXBwb3J0IGFnZW50cyIsInNlcSI6MH0=", "context": {"scopes": ["kb:read"], "session": "s-42"}, "decision": "ALLOW", "format": "canon-v1", "inputs_digest": "id-001", "issued_at": "2026-10-26T17:51:12.373692Z", "nonce": "ae74c6f590f647fab033ab0eded63b56", "policy_digest": "pd-v3", "policy_id": "acme-support-v3", "prev_hash": "", "reason": "Read-only KB access is pre-approved for all support agents", "record_hash": "88eeac6bb2cdacf8b1455701da3f42454789423ab119c82bdf2c7a3e428b0576", "seq": 0, "signature": "edd2ec3cda0a8e76896eac7633d098ce351c53bd78c154b022444ed42fa61427885b554240fe1a94083104cc44df49815bb1b1873cf14954bc81d6b40ad68908"}, {"action": "db.write", "actor": "support-agent", "canonical_b64": "eyJhY3Rpb24iOiJkYi53cml0ZSIsImFjdG9yIjoic3VwcG9ydC1hZ2VudCIsImNvbnRleHQiOnsic2NvcGVzIjpbImRiOnJlYWQiXSwic2Vzc2lvbiI6InMtNDIifSwiZGVjaXNpb24iOiJERU5ZIiwiZm9ybWF0IjoiY2Fub24tdjEiLCJpbnB1dHNfZGlnZXN0IjoiaWQtMDAyIiwiaXNzdWVkX2F0IjoiMjAyNi0xMC0yNlQxNzo1MToxMi42OTY5MDlaIiwibm9uY2UiOiIyNzM3MTY0Y2RhMjY0ZTUxOTIyYjk1N2RkZGQ2YmVjMiIsInBvbGljeV9kaWdlc3QiOiJwZC12MyIsInBvbGljeV9pZCI6ImFjbWUtc3VwcG9ydC12MyIsInByZXZfaGFzaCI6Ijg4ZWVhYzZiYjJjZGFjZjhiMTQ1NTcwMWRhM2Y0MjQ1NDc4OTQyM2FiMTE5YzgyYmRmMmM3YTNlNDI4YjA1NzYiLCJyZWFzb24iOiJXcml0ZXMgdG8gdGhlIGN1c3RvbWVyIGRhdGFiYXNlIGFyZSBub3QgcGVybWl0dGVkIGZvciBzdXBwb3J0IGFnZW50cyIsInNlcSI6MX0=", "context": {"scopes": ["db:read"], "session": "s-42"}, "decision": "DENY", "format": "canon-v1", "inputs_digest": "id-002", "issued_at": "2026-10-26T17:51:12.696909Z", "nonce": "2737164cda264e51922b957dddd6bec2", "policy_digest": "pd-v3", "policy_id": "acme-support-v3", "prev_hash": "88eeac6bb2cdacf8b1455701da3f42454789423ab119c82bdf2c7a3e428b0576", "reason": "Writes to the customer database are not permitted for support agents", "record_hash": "847052c6823031b99cad29cb93c3ba07090a699f33894fedeae1a280056e58f0", "seq": 1, "signature": "545b565e42aec74445a164f5d9d5707b69fe29a133c79e4f6ded9a747e7247015e25ad9ee3dffb1d58fe0f3b960caf6051072488b9d1670cab0a868fcdfed906"}, {"action": "order.refund", "actor": "support-agent", "canonical_b64": "eyJhY3Rpb24iOiJvcmRlci5yZWZ1bmQiLCJhY3RvciI6InN1cHBvcnQtYWdlbnQiLCJjb250ZXh0Ijp7InNjb3BlcyI6WyJvcmRlcnM6d3JpdGUiXSwic2Vzc2lvbiI6InMtNDIifSwiZGVjaXNpb24iOiJBTExPVyIsImZvcm1hdCI6ImNhbm9uLXYxIiwiaW5wdXRzX2RpZ2VzdCI6ImlkLTAwMyIsImlzc3VlZF9hdCI6IjIwMjYtMTAtMjZUMTc6NTE6MTMuMDE5NzYxWiIsIm5vbmNlIjoiYjFjZTc3OWQ2NGNlNGQzNmFmNGY5NjJmYTgxZjQ3MzYiLCJwb2xpY3lfZGlnZXN0IjoicGQtdjMiLCJwb2xpY3lfaWQiOiJhY21lLXN1cHBvcnQtdjMiLCJwcmV2X2hhc2giOiI4NDcwNTJjNjgyMzAzMWI5OWNhZDI5Y2I5M2MzYmEwNzA5MGE2OTlmMzM4OTRmZWRlYWUxYTI4MDA1NmU1OGYwIiwicmVhc29uIjoiUmVmdW5kcyB1bmRlciB0aGUgcHJlLWFwcHJvdmVkIGxpbWl0IGFyZSBwZXJtaXR0ZWQiLCJzZXEiOjJ9", "context": {"scopes": ["orders:write"], "session": "s-42"}, "decision": "ALLOW", "format": "canon-v1", "inputs_digest": "id-003", "issued_at": "2026-10-26T17:51:13.019761Z", "nonce": "b1ce779d64ce4d36af4f962fa81f4736", "policy_digest": "pd-v3", "policy_id": "acme-support-v3", "prev_hash": "847052c6823031b99cad29cb93c3ba07090a699f33894fedeae1a280056e58f0", "reason": "Refunds under the pre-approved limit are permitted", "record_hash": "2bed5ab90d214b6752263ebf0c138804f4270d779fd50bd61500a6a63331816d", "seq": 2, "signature": "a8658783e12a4ba862b4532773c26bbe9528cdb2255a865cb626084d0a3cae4e0e542c47b60827de93bdf16aa87f1b7a214f6615480c9ba4a56d112664047b02"}], "seal": {"chain_id": "5c00259dea62c077", "final_hash": "2bed5ab90d214b6752263ebf0c138804f4270d779fd50bd61500a6a63331816d", "record_count": 3, "seal_hash": "813cc00ff2f131399c63b402db0733b0f5f0454967ed63c1b877566834215efe", "sealed_at": "2026-10-26T17:51:13.344026Z", "signature": "edc4987be690cf6c17f7677f00703d4ad71c339692cd363f68d42c779f466e208df627d172df249735234faab9a42edcd23cd4ba7222d068956fed8a7ccf0507"}, "subject": "acme-support-agent"}</script>
+<script>
+
+// ---------------------------------------------------------------------------
+// Canonical JSON — must match agentproof.core.canonical exactly.
+// ---------------------------------------------------------------------------
+function canonSort(a, b) {
+  // Python sorts str by Unicode code point; JS default sort uses UTF-16 code
+  // units. These agree for everything in the BMP and differ only for
+  // astral-plane characters, which cannot appear in a receipt body.
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
+}
+
+function canonicalize(value) {
+  if (value === null) return null;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) throw new Error('non-finite number');
+    return value;
+  }
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (typeof value === 'object') {
+    var out = {};
+    var keys = Object.keys(value).sort(canonSort);
+    for (var i = 0; i < keys.length; i++) {
+      out[keys[i]] = canonicalize(value[keys[i]]);
+    }
+    return out;
+  }
+  throw new Error('unsupported type: ' + typeof value);
+}
+
+function canonicalJson(value) {
+  return JSON.stringify(canonicalize(value));
+}
+
+// ---------------------------------------------------------------------------
+// SHA-256 (FIPS 180-4), UTF-8 input, lowercase hex output.
+// ---------------------------------------------------------------------------
+var SHA_K = [
+  0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+  0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+  0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+  0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+  0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+  0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+  0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+  0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+];
+
+function utf8Bytes(str) {
+  var out = [];
+  for (var i = 0; i < str.length; i++) {
+    var c = str.charCodeAt(i);
+    if (c < 0x80) {
+      out.push(c);
+    } else if (c < 0x800) {
+      out.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f));
+    } else if (c >= 0xd800 && c <= 0xdbff && i + 1 < str.length) {
+      var c2 = str.charCodeAt(i + 1);
+      var cp = 0x10000 + ((c - 0xd800) << 10) + (c2 - 0xdc00);
+      out.push(0xf0 | (cp >> 18), 0x80 | ((cp >> 12) & 0x3f), 0x80 | ((cp >> 6) & 0x3f), 0x80 | (cp & 0x3f));
+      i++;
+    } else {
+      out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
+    }
+  }
+  return out;
+}
+
+function sha256Hex(text) {
+  var bytes = utf8Bytes(text);
+  var bitLen = bytes.length * 8;
+  bytes.push(0x80);
+  while (bytes.length % 64 !== 56) bytes.push(0);
+  // 64-bit big-endian length; JS numbers are safe to 2^53 so we split it.
+  var hi = Math.floor(bitLen / 0x100000000);
+  var lo = bitLen >>> 0;
+  bytes.push((hi >>> 24) & 0xff, (hi >>> 16) & 0xff, (hi >>> 8) & 0xff, hi & 0xff);
+  bytes.push((lo >>> 24) & 0xff, (lo >>> 16) & 0xff, (lo >>> 8) & 0xff, lo & 0xff);
+
+  var h = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+           0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+  var w = new Array(64);
+
+  for (var off = 0; off < bytes.length; off += 64) {
+    for (var t = 0; t < 16; t++) {
+      w[t] = (bytes[off + t * 4] << 24) | (bytes[off + t * 4 + 1] << 16) |
+             (bytes[off + t * 4 + 2] << 8) | bytes[off + t * 4 + 3];
+    }
+    for (var t2 = 16; t2 < 64; t2++) {
+      var s0 = (rotr(w[t2 - 15], 7) ^ rotr(w[t2 - 15], 18) ^ (w[t2 - 15] >>> 3)) >>> 0;
+      var s1 = (rotr(w[t2 - 2], 17) ^ rotr(w[t2 - 2], 19) ^ (w[t2 - 2] >>> 10)) >>> 0;
+      w[t2] = (w[t2 - 16] + s0 + w[t2 - 7] + s1) >>> 0;
+    }
+
+    var a = h[0], b = h[1], c = h[2], d = h[3], e = h[4], f = h[5], g = h[6], hh = h[7];
+
+    for (var i = 0; i < 64; i++) {
+      var S1 = (rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)) >>> 0;
+      var ch = ((e & f) ^ (~e & g)) >>> 0;
+      var temp1 = (hh + S1 + ch + SHA_K[i] + w[i]) >>> 0;
+      var S0 = (rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)) >>> 0;
+      var maj = ((a & b) ^ (a & c) ^ (b & c)) >>> 0;
+      var temp2 = (S0 + maj) >>> 0;
+
+      hh = g; g = f; f = e;
+      e = (d + temp1) >>> 0;
+      d = c; c = b; b = a;
+      a = (temp1 + temp2) >>> 0;
+    }
+
+    h[0] = (h[0] + a) >>> 0; h[1] = (h[1] + b) >>> 0;
+    h[2] = (h[2] + c) >>> 0; h[3] = (h[3] + d) >>> 0;
+    h[4] = (h[4] + e) >>> 0; h[5] = (h[5] + f) >>> 0;
+    h[6] = (h[6] + g) >>> 0; h[7] = (h[7] + hh) >>> 0;
+  }
+
+  var hex = '';
+  for (var k = 0; k < 8; k++) {
+    hex += ('00000000' + h[k].toString(16)).slice(-8);
+  }
+  return hex;
+}
+
+function rotr(x, n) {
+  return ((x >>> n) | (x << (32 - n))) >>> 0;
+}
+
+// ---------------------------------------------------------------------------
+// Verification
+// ---------------------------------------------------------------------------
+function verifyChain(data) {
+  var results = [];
+  var problems = [];
+  var prev = '';
+  var records = data.records || [];
+
+  for (var i = 0; i < records.length; i++) {
+    var r = records[i];
+    var row = { seq: r.seq, ok: true, issues: [] };
+
+    // 1. The body is exactly what the Python side hashed. Rebuild it from
+    //    the record's own fields, minus the derived hash and signature.
+    var body = {
+      format: r.format,
+      seq: r.seq,
+      nonce: r.nonce,
+      issued_at: r.issued_at,
+      actor: r.actor,
+      action: r.action,
+      decision: r.decision,
+      reason: r.reason,
+      policy_id: r.policy_id,
+      policy_digest: r.policy_digest,
+      inputs_digest: r.inputs_digest,
+      context: r.context || {},
+      prev_hash: r.prev_hash
+    };
+
+    // 2. Cross-implementation check: does our canonical form match the
+    //    bytes the Python side actually hashed?
+    var myCanonical = canonicalJson(body);
+    if (r.canonical_b64 && r.canonical_b64 !== b64Encode(myCanonical)) {
+      row.ok = false;
+      row.issues.push('canonical form differs from the Python implementation');
+      problems.push('seq ' + r.seq + ': canonicalization differs between implementations');
+    }
+
+    // 3. Recompute the record hash.
+    var myHash = sha256Hex(myCanonical);
+    if (myHash !== r.record_hash) {
+      row.ok = false;
+      row.issues.push('recomputed hash does not match');
+      problems.push('seq ' + r.seq + ': recomputed hash does not match the stored hash');
+    }
+    row.recomputed_hash = myHash;
+
+    // 4. Chain linkage.
+    if (r.prev_hash !== prev) {
+      row.ok = false;
+      row.issues.push('chain link broken');
+      problems.push('seq ' + r.seq + ': prev_hash does not match the previous record');
+    }
+    prev = r.record_hash;
+
+    // 5. Sequence continuity.
+    if (r.seq !== i) {
+      row.ok = false;
+      row.issues.push('sequence number is out of order');
+      problems.push('record #' + i + ' has seq ' + r.seq + '; a record was inserted or removed');
+    }
+
+    results.push(row);
+  }
+
+  // 6. Seal check.
+  var sealState = 'absent';
+  if (data.seal) {
+    var sealBody = {
+      chain_id: data.seal.chain_id,
+      sealed_at: data.seal.sealed_at,
+      record_count: data.seal.record_count,
+      final_hash: data.seal.final_hash
+    };
+    var mySealHash = sha256Hex(canonicalJson(sealBody));
+    var sealOk = mySealHash === data.seal.seal_hash;
+    if (!sealOk) {
+      problems.push('the seal does not match its own contents');
+    }
+    if (data.seal.record_count !== records.length) {
+      sealOk = false;
+      problems.push('the seal covers ' + data.seal.record_count + ' records but the file contains ' + records.length);
+    }
+    var finalHash = records.length ? records[records.length - 1].record_hash : '';
+    if (data.seal.final_hash !== finalHash) {
+      sealOk = false;
+      problems.push('the seal final hash does not match the last record; the chain was rewritten after sealing');
+    }
+    sealState = sealOk ? 'matches' : 'does not match';
+    if (!sealOk) sealState = 'does not match';
+  }
+
+  return {
+    ok: problems.length === 0,
+    rows: results,
+    problems: problems,
+    seal: sealState,
+    records: records.length
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Base64 (UTF-8 safe)
+// ---------------------------------------------------------------------------
+function b64Encode(str) {
+  var bytes = utf8Bytes(str);
+  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  var out = '';
+  for (var i = 0; i < bytes.length; i += 3) {
+    var b0 = bytes[i], b1 = bytes[i + 1], b2 = bytes[i + 2];
+    out += chars[b0 >> 2];
+    out += chars[((b0 & 3) << 4) | ((b1 === undefined ? 0 : b1) >> 4)];
+    out += (b1 === undefined) ? '=' : chars[((b1 & 15) << 2) | ((b2 === undefined ? 0 : b2) >> 6)];
+    out += (b2 === undefined) ? '=' : chars[b2 & 63];
+  }
+  return out;
+}
+
+(function () {
+  var data = JSON.parse(document.getElementById('payload').textContent);
+  var statusEl = document.getElementById('verify-status');
+  var btn = document.getElementById('run-verify');
+
+  btn.addEventListener('click', function () {
+    btn.disabled = true;
+    statusEl.className = 'status';
+    statusEl.innerHTML = '<span class="spin">◌</span> 复算中…';
+    setTimeout(function () {
+      var result;
+      try {
+        result = verifyChain(data);
+      } catch (err) {
+        statusEl.className = 'status bad';
+        statusEl.textContent = '复算出错: ' + err.message;
+        btn.disabled = false;
+        return;
+      }
+      if (result.ok) {
+        statusEl.className = 'status ok';
+        statusEl.textContent = '✓ 复算通过 — ' + result.records + ' 条记录哈希正确、链无断裂、封存一致';
+      } else {
+        statusEl.className = 'status bad';
+        statusEl.textContent = '✕ 复算失败 — ' + result.problems.length + ' 项问题';
+      }
+      btn.disabled = false;
+    }, 30);
+  });
+})();
+</script>
+</body>
+</html>

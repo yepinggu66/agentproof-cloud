@@ -1,0 +1,67 @@
+{
+  "chain_id": "43dc345ae9220d51",
+  "format": "agentproof-chain-v1",
+  "public_key": "b0d1d75e9f5842d33d87cd3dc632212c97918ad8c469ed54dae8e59491342d5f",
+  "records": [
+    {
+      "action": "kb.search",
+      "actor": "support-agent",
+      "context": {},
+      "decision": "ALLOW",
+      "format": "canon-v1",
+      "inputs_digest": "id-1",
+      "issued_at": "2026-10-26T17:42:09.775939Z",
+      "nonce": "c82fed31b0ec44cd90f0db2f6da0f47e",
+      "policy_digest": "pd-v3",
+      "policy_id": "acme-support-v3",
+      "prev_hash": "",
+      "reason": "Read-only KB access is pre-approved",
+      "record_hash": "a3b113becca1fa6217c7a8a09f4d9e89b3a1527b9f71b4f3ffb43f9de279e83d",
+      "seq": 0,
+      "signature": "ba1943c6706bd8e4bff9301a7ff7a5dfbadef812236d0ac65ab34ba3557ce45a0b28764a5aada7fa4d49ae1a177eca440d0791da1784f6c158fd2d3c25303003"
+    },
+    {
+      "action": "db.write",
+      "actor": "support-agent",
+      "context": {},
+      "decision": "DENY",
+      "format": "canon-v1",
+      "inputs_digest": "id-2",
+      "issued_at": "2026-10-26T17:42:10.032359Z",
+      "nonce": "1cc3bf892f6747f88ce634b248743512",
+      "policy_digest": "pd-v3",
+      "policy_id": "acme-support-v3",
+      "prev_hash": "a3b113becca1fa6217c7a8a09f4d9e89b3a1527b9f71b4f3ffb43f9de279e83d",
+      "reason": "Writes to the customer database are not permitted",
+      "record_hash": "383d5a702df4a81124e9a43c96ba05b259d050a2a5b7909c4708030a0d902bc4",
+      "seq": 1,
+      "signature": "9da80a22ffe946e4d65911bd96ef4538122b6c0ab720fda2bee431b92a8e900f37ec26339259ea71fa5dcdc9a2b4547256f69e013c468f778c425208c6aebc0b"
+    },
+    {
+      "action": "order.refund",
+      "actor": "support-agent",
+      "context": {},
+      "decision": "ALLOW",
+      "format": "canon-v1",
+      "inputs_digest": "id-3",
+      "issued_at": "2026-10-26T17:42:10.289551Z",
+      "nonce": "ac75dc47ddcf4c48a418333f57d67478",
+      "policy_digest": "pd-v3",
+      "policy_id": "acme-support-v3",
+      "prev_hash": "383d5a702df4a81124e9a43c96ba05b259d050a2a5b7909c4708030a0d902bc4",
+      "reason": "Refund within the pre-approved limit",
+      "record_hash": "fd306b0af161898368370ad13244cbb79b8fb9f2cf19b633f3080921c18084c4",
+      "seq": 2,
+      "signature": "442bc2e8557cdcdc1418fae0c276e70664f79f81a8b6861593ec7e3f94feee74d2295d0b3cb2ad0f2dfc5d1abaa68f05a0fb6377a1d6f829b3ea57eba2409a03"
+    }
+  ],
+  "seal": {
+    "chain_id": "43dc345ae9220d51",
+    "final_hash": "fd306b0af161898368370ad13244cbb79b8fb9f2cf19b633f3080921c18084c4",
+    "record_count": 3,
+    "seal_hash": "c43eaed0a4688d8391a4107d0282dd0391660d3fed77c5d0129982a50d80a4a0",
+    "sealed_at": "2026-10-26T17:42:10.545173Z",
+    "signature": "0a3fb4e4372ee034de56c134d988e37f582bc1d7ce95652cb39faaa62d102943a6049c5a5339ef9ce98a27a9e5c1485242bd0d0d26883f15a7f134c5d5c79303"
+  },
+  "subject": "acme-support-agent"
+}

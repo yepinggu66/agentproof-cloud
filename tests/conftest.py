@@ -1,4 +1,9 @@
-"""Shared fixtures: one temp data dir, one FastAPI app instance per session."""
+"""Shared fixtures for the merged repository.
+
+The commercial service tests (server/) need a throwaway data directory before
+the FastAPI app is imported; the library tests (src/agentproof) need the
+in-memory Chain fixtures. Both live here.
+"""
 
 from __future__ import annotations
 
@@ -13,6 +18,7 @@ os.environ.setdefault("PYTHONPATH", ".")
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
+from agentproof.core.chain import Chain, generate_keypair  # noqa: E402
 from server.app import app  # noqa: E402
 from server import config  # noqa: E402
 
@@ -82,3 +88,52 @@ def sample_texts() -> dict[str, str]:
 @pytest.fixture(scope="session")
 def db_path() -> str:
     return str(config.DB_PATH)
+
+
+# --- library fixtures (from the merged v0.2.0 test suite) -------------------
+
+
+@pytest.fixture
+def keypair():
+    """Return an Ed25519 ``(private_pem, public_pem)`` pair."""
+    return generate_keypair()
+
+
+@pytest.fixture
+def chain(keypair):
+    private, _ = keypair
+    return Chain(private, subject="acme-support-agent")
+
+
+@pytest.fixture
+def populated_chain(keypair):
+    private, _ = keypair
+    chain = Chain(private, subject="acme-support-agent")
+    chain.append(
+        actor="support-agent",
+        action="kb.search",
+        decision="ALLOW",
+        reason="Read-only knowledge base access is pre-approved",
+        policy_id="pol-1",
+        policy_digest="pd-1",
+        inputs_digest="id-1",
+    )
+    chain.append(
+        actor="support-agent",
+        action="db.write",
+        decision="DENY",
+        reason="Action was never declared as a capability",
+        policy_id="pol-1",
+        policy_digest="pd-1",
+        inputs_digest="id-2",
+    )
+    chain.append(
+        actor="support-agent",
+        action="order.refund",
+        decision="ALLOW",
+        reason="Refund within the pre-approved limit",
+        policy_id="pol-1",
+        policy_digest="pd-1",
+        inputs_digest="id-3",
+    )
+    return chain

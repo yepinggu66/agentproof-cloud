@@ -49,7 +49,7 @@
 
 - ✅ `tools/leadgen.py`：批量扫公开仓库，出线索表 + 报告
 - ✅ `tools/audit_report.py`：客户版签名审计报告（HTML/Markdown/JSON + Ed25519 签名 + 校验命令）
-- ✅ 网站官网、免费扫描器、在线演示控制台
+- ✅ 网站官网、免费扫描器、在线演示控制台`n- ✅ v0.2.0 软件底座已合并：运行时门禁、云端双签公证、Vanta/Drata/Datadog/AIUC-1 导出器、`agentproof` CLI（272 测试）
 - ⏳ 收款：Stripe Payment Link / LemonSqueezy（需用户 KYC）
 - ⏳ 报价单与合同模板（可基于报告附录生成）
 - ⏳ 邮件/域名（`hello@` 邮箱、SPF/DKIM/DMARC）

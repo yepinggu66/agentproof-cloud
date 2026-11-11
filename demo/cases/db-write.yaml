@@ -1,0 +1,29 @@
+version: 1
+name: db-write
+agent: support-agent
+source_trace: trace.jsonl
+created_from: error
+description: Auto-generated from a trace with 2 tool call(s) and 1 error(s). Review
+  the `expect` blocks before running this in CI.
+steps:
+- action: kb.search
+  inputs:
+    q: refund policy
+  expect:
+    decision: allow
+- action: db.write
+  inputs:
+    sql: UPDATE customers SET status='refunded' WHERE id=8812
+  expect:
+    decision: allow
+assertions:
+- type: action_sequence
+  value:
+  - kb.search
+  - db.write
+- type: no_errors
+context:
+  original_errors:
+  - action: db.write
+    error: permission denied for role support_agent
+    ts: '2026-10-26T17:42:24.718399Z'

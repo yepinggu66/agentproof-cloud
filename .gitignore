@@ -11,3 +11,8 @@ venv/
 *.log
 node_modules/
 playwright-report/
+*.egg-info/
+dist/
+build/
+*.db
+.netlify/
