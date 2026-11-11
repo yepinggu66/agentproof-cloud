@@ -1,6 +1,6 @@
 # AgentProof.cloud — Launch Copy
 
-**Status: pre-publish draft — NO-GO.** The public deployment is not live yet; the only candidate URL is password-gated. This file is written to be published **after** the public URL is live and every item in §8 is green. `[PUBLIC_URL]` is a placeholder, not a working link.
+**Status: pre-publish draft — NO-GO for full launch.** A static preview is live at https://yepinggu66.github.io/agentproof-cloud/ (browser scanner + offline demo; no backend). The full product is not ready: the Python API is not deployed, checkout is a sandbox, the UI is Chinese-only, and screenshots still contain test data. Publish only when every item in §8 is green.
 
 **Product in one line:** vendor-neutral compliance evidence for AI agents.
 
@@ -73,11 +73,11 @@ I built AgentProof.cloud around a simple observation: an agent's own account of 
 
 Each decision gets two Ed25519 signatures over the same canonical body — platform key and tenant key — then goes into a SHA-256 hash chain. A seal commits to the chain tail. Verification takes a public key and the chain file; no account, no network, no vendor. Edit a field, delete a record, or reorder the chain without the keys, and the chain no longer verifies.
 
-There is a free scanner on the home page at `[PUBLIC_URL]` (the "免费扫描" section). Paste an `mcp.json` or Python tool code and it runs static rules — MCP config checks and Python code checks, not an LLM and not a mock — to produce an A–F grade, per-finding evidence, and a deny-by-default `policy.yaml`. It does not execute the code; don't paste live secrets.
+There is a free scanner on the home page at `https://yepinggu66.github.io/agentproof-cloud/` (the "免费扫描" section). Paste an `mcp.json` or Python tool code and it runs static rules — MCP config checks and Python code checks, not an LLM and not a mock — to produce an A–F grade, per-finding evidence, and a deny-by-default `policy.yaml`. It does not execute the code; don't paste live secrets.
 
 Limits, because they matter: signatures prove issuance and integrity, not that a decision was correct, and not that whoever holds the keys never fabricated a record. Publish the seal out of band for that. Exports to Vanta, Drata, Datadog, and Lloyd's AIUC-1 are mapping drafts, not certified integrations. The hosted checkout is a sandbox: it creates a tenant and API key, but takes no money.
 
-The core is MIT and self-hostable. I'm the only maintainer; there are no customers, ARR, or benchmark numbers to cite. I'd like feedback from people running agents with real side effects: where would this fit in your stack, and what would make the evidence unusable to your auditor? Code: `[GITHUB_URL]`.
+The core is MIT and self-hostable. I'm the only maintainer; there are no customers, ARR, or benchmark numbers to cite. I'd like feedback from people running agents with real side effects: where would this fit in your stack, and what would make the evidence unusable to your auditor? Code: `https://github.com/yepinggu66/agentproof-cloud`.
 
 ### Anticipated critical comments — and honest answers
 
@@ -178,7 +178,7 @@ If useful, reply with the link. If not, reply "no" and I'll close the loop.
 
 [NAME]
 [ROLE], AgentProof.cloud
-[PUBLIC_URL]
+https://yepinggu66.github.io/agentproof-cloud/
 
 **Safety:** only scan public code or a file they explicitly share. Never ask for keys, `.env` files, customer data, or private repository access.
 
@@ -260,11 +260,11 @@ Signatures prove a record was issued and has not changed. They do not prove the 
 
 **Recommended launch mode until Stripe or LemonSqueezy is wired:** lead with the free scanner and the MIT self-host path. Present Pro and Enterprise as “planned” or “join the waitlist”, not as a checkout. If you keep the sandbox, say “sandbox — creates a tenant and API key, takes no money” on the first pricing screen, not in the FAQ.
 
-**Current status: NO-GO.** Known blockers: public URL (password-gated), sandbox checkout, test data and unverified claims in screenshots, and a Chinese-only product surface for an English-language launch.
+**Current status: NO-GO for full launch.** The static preview is live on GitHub Pages; remaining blockers: backend not deployed, sandbox checkout, test data in screenshots, and a Chinese-only product surface for an English-language launch.
 
 Treat each line as a gate: a single NO-GO blocks publication.
 
-1. **Public URL is live and un-gated.** `[PUBLIC_URL]` resolves over HTTPS from a clean browser and a phone, with no password wall, basic-auth prompt, or “coming soon” page. **Go only if** this works without a session cookie. **Current: NO-GO** — the only candidate URL is password-gated.
+1. **Public URL is live and un-gated.** `https://yepinggu66.github.io/agentproof-cloud/` resolves over HTTPS from a clean browser and a phone, with no password wall, basic-auth prompt, or “coming soon” page. **Go only if** this works without a session cookie. **Current: PASS** — the static site is live and un-gated at https://yepinggu66.github.io/agentproof-cloud/ (verified HTTP 200; scanner returns F with 8 findings and a deny-by-default policy). Backend not connected: the site runs in labelled offline-demo mode.
 
 2. **The live build is the real build.** The site is in LIVE mode, the scanner calls the real `/api/scan`, and the console is not a localStorage demo passed off as production. If the static/offline demo is reachable, it is labelled “offline demo” on the page, not only in the footer.
 
@@ -292,7 +292,7 @@ Treat each line as a gate: a single NO-GO blocks publication.
 
 14. **English product surface is ready.** The overseas launch needs an English UI or an English-primary bilingual UI. The current site is `lang="zh-CN"` and the screenshots are Chinese; do not publish English launch copy over Chinese screenshots and call it ready. Recapture the five gallery images at the platform's required size with no test data.
 
-15. **All placeholders are replaced and tested.** `[PUBLIC_URL]`, `[GITHUB_URL]`, `[FOUNDER_NAME]`, `[EMAIL]`, `[COMPANY]`, `[FIRST_NAME]`, `[NAME]`, `[ROLE]`, `[SPECIFIC_DETAIL]`, `[SURFACE]`, `[ONE_LINE_ABOUT_THEIR_AGENT]`, and `[REPO/PATH]` are filled. Click every link from a logged-out browser.
+15. **All placeholders are replaced and tested.** `https://yepinggu66.github.io/agentproof-cloud/`, `https://github.com/yepinggu66/agentproof-cloud`, `[FOUNDER_NAME]`, `[EMAIL]`, `[COMPANY]`, `[FIRST_NAME]`, `[NAME]`, `[ROLE]`, `[SPECIFIC_DETAIL]`, `[SURFACE]`, `[ONE_LINE_ABOUT_THEIR_AGENT]`, and `[REPO/PATH]` are filled. Click every link from a logged-out browser.
 
 16. **Support and incident paths exist.** A monitored inbox, a status page or health endpoint, and a one-line incident response plan. Do not advertise a 99.9% SLA unless there is a real service commitment behind it.
 

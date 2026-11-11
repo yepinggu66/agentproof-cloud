@@ -2,6 +2,9 @@
 
 **Vendor-neutral compliance evidence for AI agents — commercial site + self-serve SaaS portal.**
 
+**Live static preview:** <https://yepinggu66.github.io/agentproof-cloud/> — the browser scanner and the labelled offline demo work; the API is not deployed there.
+**Source:** <https://github.com/yepinggu66/agentproof-cloud>
+
 An agent's own account of what it did is a claim, not evidence. This repository
 is the commercial half of that idea: a four-view marketing/SaaS website, a free
 online scanner that analyses real `mcp.json` and Python tool code, self-serve
@@ -11,11 +14,14 @@ and mapping-draft exports for Vanta / Drata / Datadog / Lloyd's AIUC-1.
 ```
   site/                 the static, self-contained commercial site (4 views)
   server/               FastAPI service: scanner, tenants, signed ledger, exports
+  tools/leadgen.py      batch read-only scan of public GitHub agent repos
+  docs/launch-copy.md   launch drafts + pre-publish NO-GO checklist
   scripts/              local runner + Playwright screenshot capture
-  tests/                37 tests incl. JS/Python scanner parity and tamper detection
+  tests/                40 tests incl. JS/Python scanner parity and tamper detection
   Dockerfile            single-image deployment (site + API + SQLite volume)
   railway.json          Railway one-click deploy config
   netlify.toml          static-only publish config for the marketing site
+  .github/workflows/    GitHub Pages deploy (needs `workflow` token scope)
 ```
 
 ## The four views
