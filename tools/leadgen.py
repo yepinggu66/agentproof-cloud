@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import http.client
 import json
 import os
 import re
@@ -130,7 +131,40 @@ class GitHub:
                 if exc.code == 404:
                     return None
                 raise
+            except (urllib.error.URLError, OSError, http.client.HTTPException) as exc:
+                if attempt < 2:
+                    print(f"    network hiccup ({exc}), retrying…", file=sys.stderr)
+                    time.sleep(2 + attempt * 3)
+                    continue
+                raise
         return None
+
+    def search_code_repos(self, query: str, limit: int) -> list[dict[str, Any]]:
+        """Find repositories that contain files matching a GitHub code query.
+
+        The code-search payload omits star counts, so repository metadata is
+        fetched for the candidates and they are ranked by stars.
+        """
+        encoded = urllib.parse.quote(query)
+        payload = self.get(f"/search/code?q={encoded}&per_page=30")
+        if not payload or not payload.get("items"):
+            return []
+        repos: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for item in payload["items"]:
+            repo = item.get("repository") or {}
+            full_name = repo.get("full_name")
+            if not full_name or full_name in seen:
+                continue
+            seen.add(full_name)
+            repos.append({"full_name": full_name, "stargazers_count": 0})
+            if len(repos) >= 40:
+                break
+        for item in repos:
+            meta = self.repo(item["full_name"]) or {}
+            item["stargazers_count"] = int(meta.get("stargazers_count") or 0)
+        repos.sort(key=lambda item: item["stargazers_count"], reverse=True)
+        return repos[: max(limit * 2, 5)]
 
     def search_repos(self, query: str, limit: int) -> list[dict[str, Any]]:
         encoded = urllib.parse.quote(query)
@@ -466,6 +500,13 @@ def collect_repos(args: argparse.Namespace, github: GitHub) -> list[str]:
             if stars < args.min_stars:
                 continue
             names.append(full_name)
+    if args.code_search:
+        print(f"code search: {args.code_search!r} (limit {args.limit})", file=sys.stderr)
+        for item in github.search_code_repos(args.code_search, args.limit):
+            stars = int(item.get("stargazers_count") or 0)
+            if stars < args.min_stars:
+                continue
+            names.append(item["full_name"])
     seen: set[str] = set()
     unique = []
     for name in names:
@@ -480,6 +521,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repos", help="comma separated owner/repo list")
     parser.add_argument("--repos-file", help="file with one owner/repo per line")
     parser.add_argument("--search", help="GitHub search query, e.g. 'mcp server in:name'")
+    parser.add_argument("--code-search", help='GitHub code query, e.g. \'"mcpServers" filename:mcp.json\'')
     parser.add_argument("--limit", type=int, default=5, help="max repos from search (default 5)")
     parser.add_argument("--min-stars", type=int, default=0, help="skip repos below this star count")
     parser.add_argument("--max-files", type=int, default=8, help="max files scanned per repo (default 8)")
