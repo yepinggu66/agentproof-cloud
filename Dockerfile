@@ -20,7 +20,6 @@ COPY site ./site
 COPY src ./src
 
 RUN mkdir -p /data
-VOLUME ["/data"]
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=4s --start-period=8s --retries=3 \
