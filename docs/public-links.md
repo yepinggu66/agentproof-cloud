@@ -18,12 +18,20 @@
 
 ## 2. 视频文件
 
+**配音版（推荐直接发，AI 拟真语音 + 硬字幕）：**
+
 | 文件 | 规格 | 适用平台 |
 |---|---|---|
-| `dist/promo/agentproof-promo-16x9.mp4` | 1920×1080 · 35s · H.264 + AAC | X/Twitter、Facebook、YouTube、LinkedIn |
-| `dist/promo/agentproof-promo-9x16.mp4` | 1080×1920 · 25s · H.264 + AAC | 视频号、抖音、小红书、Reels/Shorts |
-| `dist/promo/cover-16x9.png` | 1920×1080 封面 | YouTube 缩略图、X 首图 |
-| `dist/promo/cover-9x16.png` | 1080×1920 封面 | 视频号/抖音/小红书封面 |
+| `dist/promo/agentproof-promo-16x9-zh.mp4` | 1920×1080 · **62s** · 中文解说（云扬）+ 中文字幕 | YouTube 中文、B站、视频号横版 |
+| `dist/promo/agentproof-promo-16x9-en.mp4` | 1920×1080 · **62s** · 英文解说（Andrew）+ 英文字幕 | X/Twitter、Facebook、YouTube、LinkedIn |
+| `dist/promo/agentproof-promo-9x16-zh.mp4` | 1080×1920 · **41s** · 中文解说 + 中文字幕 | 视频号、抖音、小红书、Reels/Shorts |
+| `*.srt`（同名） | 字幕文件 | 平台上传字幕 / 二次剪辑 |
+
+**无声版（原始素材，便于自己配音/配乐）：** `agentproof-promo-16x9.mp4`（35s）、`agentproof-promo-9x16.mp4`（25s）。
+
+**封面：** `cover-16x9.png`（YouTube 缩略图）、`cover-9x16.png`（竖版封面）。
+
+配音说明：中文使用 Edge TTS `zh-CN-YunyangNeural`（新闻播报质感），英文使用 `en-US-AndrewNeural`（温暖、可信）；语速 +2%/+4%，字幕按句对齐并烧录。需要换声音（如女声 Xiaoxiao）或改文案，改 `.tmp/make_vo.py` 里的 `CONFIGS` 重跑即可。
 
 视频内容：标题卡 → 先签名后执行 → 免费扫描 F 级 + policy.yaml → 双签账本 verify PASS → $490 审计 + PayPal → 四家生态导出 → 官网/GitHub 收尾。画面全部来自真实运行中的产品，无假客户、无假 ARR。
 
