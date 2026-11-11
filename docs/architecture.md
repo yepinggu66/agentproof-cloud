@@ -69,7 +69,7 @@ top and is a separate analysis depth, not a second copy of the MCP rules.
 
 ## What exists vs what is missing
 
-**Exists and tested (272 tests):**
+**Exists and tested (275 tests):**
 - core chain / receipt / policy / canonical JSON / verification
 - runtime gate, cloud notary, storage, billing webhook verification
 - one canonical document scanner (engine) + AST workspace layer, browser parity-tested

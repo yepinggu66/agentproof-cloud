@@ -27,7 +27,7 @@ scanner, plus the original 227-test suite. `pip install -e .` gives you the
   netlify/functions/    stateless preview API (never fabricates tenants or ARR)
   deploy/v0.2.0/        original Dockerfile / render / railway configs (archived)
   scripts/              local runner + Playwright screenshot capture
-  tests/                272 tests: library + commercial API + JS/Python scanner parity
+  tests/                275 tests: library + commercial API + JS/Python scanner parity
   Dockerfile            single-image deployment (site + API + SQLite volume)
   railway.json          Railway one-click deploy config
   netlify.toml          static publish + preview function config
@@ -150,7 +150,7 @@ master key (`data/master.key`); only the API key's SHA-256 digest is stored.
 
 ```bash
 pip install -r requirements-dev.txt
-python -m pytest            # 272 tests, ~13s (needs Node.js for parity tests)
+python -m pytest            # 275 tests, ~13s (needs Node.js for parity tests)
 python scripts/screenshot_preview.py http://127.0.0.1:8791 .tmp/shots
 ```
 
@@ -201,6 +201,16 @@ python tools/audit_report.py verify --report audit/report.json \
 A full example lives in [docs/sample-audit/](docs/sample-audit/), and audit
 requests are accepted through the GitHub issue template
 `.github/ISSUE_TEMPLATE/audit-request.yml`.
+
+`tools/batch_audit.py` produces the first outbound batch: signed reports for
+public agent repositories, with a CSV/Markdown index:
+
+```bash
+python tools/batch_audit.py --out .tmp/audit-batch
+```
+
+Reports are static analysis, redacted, and not committed to this repository
+(they name third-party projects).
 
 ## Deploy
 

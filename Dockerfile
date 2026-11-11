@@ -5,6 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     AGENTPROOF_DATA_DIR=/data \
+    PYTHONPATH=/app/src \
     PORT=8080
 
 WORKDIR /app
@@ -12,8 +13,11 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
+# The commercial service (server/) imports the merged library package
+# (src/agentproof/scanner/engine.py), so both trees ship in the image.
 COPY server ./server
 COPY site ./site
+COPY src ./src
 
 RUN mkdir -p /data
 VOLUME ["/data"]

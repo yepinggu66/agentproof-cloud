@@ -70,7 +70,12 @@ class BatchRow:
 
 
 def pick_files(github: GitHub, full_name: str, branch: str, max_files: int) -> list[tuple[str, str]]:
-    tree = github.tree(full_name, branch)
+    try:
+        tree = github.tree(full_name, branch)
+    except Exception:
+        tree = []
+    if not tree:
+        return pick_files_via_contents(github, full_name, max_files)
     blobs = [item for item in tree if item.get("type") == "blob"]
     mcp = [
         item["path"] for item in blobs
@@ -85,6 +90,45 @@ def pick_files(github: GitHub, full_name: str, branch: str, max_files: int) -> l
     chosen: list[str] = mcp[: max_files // 2] + py[: max_files - min(len(mcp), max_files // 2)]
     contents: list[tuple[str, str]] = []
     for path in chosen:
+        text = github.file_text(full_name, path)
+        if text:
+            contents.append((path, text))
+    return contents
+
+
+def pick_files_via_contents(github: GitHub, full_name: str, max_files: int) -> list[tuple[str, str]]:
+    """Fallback for huge repositories whose recursive tree response gets truncated.
+
+    Walks the contents API breadth-first (bounded) and fetches only a handful of
+    candidate files, so a 100MB repository costs a few small requests.
+    """
+    queue: list[tuple[str, int]] = [("", 0)]
+    candidates: list[tuple[str, int]] = []
+    calls = 0
+    while queue and calls < 40 and len(candidates) < max_files * 4:
+        path, depth = queue.pop(0)
+        calls += 1
+        try:
+            listing = github.get(f"/repos/{full_name}/contents/{path}" if path else f"/repos/{full_name}/contents/")
+        except Exception:
+            continue
+        if not isinstance(listing, list):
+            continue
+        for entry in listing:
+            entry_type = entry.get("type")
+            entry_path = entry.get("path", "")
+            name = Path(entry_path).name.lower()
+            if entry_type == "file":
+                if name in MCP_NAMES or (
+                    entry_path.endswith(".py")
+                    and int(entry.get("size") or 0) < 200_000
+                    and any(hint in entry_path.lower() for hint in PY_HINTS)
+                ):
+                    candidates.append((entry_path, 0))
+            elif entry_type == "dir" and depth < 2:
+                queue.append((entry_path, depth + 1))
+    contents: list[tuple[str, str]] = []
+    for path, _depth in candidates[:max_files]:
         text = github.file_text(full_name, path)
         if text:
             contents.append((path, text))
