@@ -268,7 +268,7 @@ Treat each line as a gate: a single NO-GO blocks publication.
 
 2. **The live build is the real build.** The site is in LIVE mode, the scanner calls the real `/api/scan`, and the console is not a localStorage demo passed off as production. If the static/offline demo is reachable, it is labelled “offline demo” on the page, not only in the footer. **Current: PASS on the Railway instance** (the GitHub Pages mirror remains the labelled offline demo).
 
-3. **Checkout tells the truth.** Every checkout surface says “sandbox — creates a tenant and API key, takes no money” until payments are live, and the CTA does not say “confirm payment” while no money moves. **Go only if** the wording matches the actual `checkout.mode`. **Current: NO-GO** — checkout is a sandbox.
+3. **Checkout tells the truth.** Every checkout surface says “sandbox — creates a tenant and API key, takes no money” until payments are live, and the CTA does not say “confirm payment” while no money moves. **Go only if** the wording matches the actual `checkout.mode`. **Current: PARTIAL** — the audit service now uses real PayPal payment links (manual fulfillment); the SaaS self-serve checkout remains a sandbox.
 
 4. **No fake proof anywhere.** Zero customer logos, testimonials, “trusted by” strips, press mentions, invented ARR, invented scan counts, invented decision counts, or benchmark numbers. The production instance is reset to ARR $0 / 0 tenants; the console and pricing screenshots still show a test tenant and $1,188 ARR — recapture before publishing. The header ARR must be $0 or hidden unless it is computed from real paid tenants.
 
